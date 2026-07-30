@@ -105,6 +105,11 @@ const App = {
       this.startQRScan('openpit');
     });
 
+    // Manual QR entry
+    document.getElementById('op-qr').addEventListener('change', (e) => {
+      this.handleManualQR('openpit', e.target.value.trim());
+    });
+
     // Manual photo button
     document.getElementById('op-take-photo').addEventListener('click', () => {
       this.startCamera('openpit_photo');
@@ -232,6 +237,10 @@ const App = {
       this.startQRScan('stockpile');
     });
 
+    document.getElementById('sp-qr').addEventListener('change', (e) => {
+      this.handleManualQR('stockpile', e.target.value.trim());
+    });
+
     document.getElementById('sp-take-photo').addEventListener('click', () => {
       this.startCamera('stockpile_photo');
     });
@@ -357,6 +366,9 @@ const App = {
       }
     });
     document.getElementById('bd-scan-qr').addEventListener('click', () => this.startQRScan('breakdown'));
+    document.getElementById('bd-qr').addEventListener('change', (e) => {
+      this.handleManualQR('breakdown', e.target.value.trim());
+    });
 
     // Breakdown photo auto-trigger on vehicle no. change
     document.getElementById('bd-vehicle').addEventListener('change', () => {
@@ -451,6 +463,9 @@ const App = {
       }
     });
     document.getElementById('pk-scan-qr').addEventListener('click', () => this.startQRScan('parking'));
+    document.getElementById('pk-qr').addEventListener('change', (e) => {
+      this.handleManualQR('parking', e.target.value.trim());
+    });
 
     // Parking photo auto-trigger
     document.getElementById('pk-vehicle').addEventListener('change', () => {
@@ -601,6 +616,24 @@ const App = {
     } else if (ctx === 'stockpile') {
       setTimeout(() => this.startCamera('stockpile_photo'), 300);
     }
+  },
+
+  async handleManualQR(ctx, value) {
+    if (!value) {
+      this.state[ctx].qrCode = '';
+      return;
+    }
+    const isDup = await DB.isQRRegisteredRecently(value);
+    if (isDup) {
+      Utils.toast('QR code already registered.', 'error');
+      const qrInputMap = { openpit: 'op-qr', stockpile: 'sp-qr', breakdown: 'bd-qr', parking: 'pk-qr' };
+      const inputId = qrInputMap[ctx];
+      if (inputId) document.getElementById(inputId).value = '';
+      this.state[ctx].qrCode = '';
+      return;
+    }
+    this.state[ctx].qrCode = value;
+    Utils.toast('矿牌已录入', 'success');
   },
 
   // ==================== Camera / Photo ====================

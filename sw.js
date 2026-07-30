@@ -1,8 +1,10 @@
 /**
  * sw.js - Service Worker for PWA offline support
- * Version: 1.0.0
+ * IMPORTANT: Bump CACHE_VERSION (e.g. v1.0.1) on every update
+ *            so the browser detects a new version and shows the
+ *            "检测到新版本" banner to users.
  */
-const CACHE_VERSION = 'v1.0.0';
+const CACHE_VERSION = 'v1.0.1';
 const CACHE_NAME = 'mining-mgmt-' + CACHE_VERSION;
 
 const ASSETS = [
