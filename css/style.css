@@ -309,6 +309,11 @@ input[readonly] {
   display: none;
 }
 
+/* Password modal always on top of other modals */
+#password-modal {
+  z-index: 10001;
+}
+
 .modal-content {
   background: #fff;
   border-radius: var(--radius);

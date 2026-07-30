@@ -477,8 +477,8 @@ const App = {
 
   getParkingHeaders() {
     return [
-      { key: 'breakdownDate', label: 'Breakdown Date' },
-      { key: 'breakdownShift', label: 'Breakdown Shift' },
+      { key: 'breakdownDate', label: 'Parking Date' },
+      { key: 'breakdownShift', label: 'Parking Shift' },
       { key: 'transferDate', label: 'Transfer Date' },
       { key: 'transferShift', label: 'Transfer Shift' },
       { key: 'qrCode', label: 'Tag (QR)' },
@@ -498,7 +498,7 @@ const App = {
     const parkingPhoto = this.state.parking.parkingPhoto;
 
     const fields = [
-      [breakdownDate, '故障日期'], [breakdownShift, '故障班次'],
+      [breakdownDate, '押矿日期'], [breakdownShift, '押矿班次'],
       [transferDate, '计划转运日期'], [transferShift, '计划转运班次'],
       [qrCode, '矿牌'], [parkingVehicleNo, '押矿车辆编号'], [parkingPhoto, '押矿车辆照片']
     ];
@@ -547,8 +547,8 @@ const App = {
 
       headers = [
         { key: 'recordType', label: 'Type' },
-        { key: 'breakdownDate', label: 'Breakdown Date' },
-        { key: 'breakdownShift', label: 'Breakdown Shift' },
+        { key: 'breakdownDate', label: 'Date' },
+        { key: 'breakdownShift', label: 'Shift' },
         { key: 'transferDate', label: 'Transfer Date' },
         { key: 'transferShift', label: 'Transfer Shift' },
         { key: 'qrCode', label: 'Tag (QR)' },
