@@ -1,0 +1,4 @@
+node_modules/
+.workbuddy/
+*.log
+__pycache__/

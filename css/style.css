@@ -1,0 +1,504 @@
+/* ====== Reset & Base ====== */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  -webkit-tap-highlight-color: transparent;
+}
+
+:root {
+  --primary: #1565c0;
+  --primary-dark: #0d47a1;
+  --primary-light: #e3f2fd;
+  --accent: #ff6f00;
+  --success: #2e7d32;
+  --danger: #c62828;
+  --info: #00838f;
+  --bg: #eceff1;
+  --card-bg: #ffffff;
+  --text: #212121;
+  --text-secondary: #616161;
+  --border: #cfd8dc;
+  --radius: 8px;
+  --shadow: 0 2px 8px rgba(0,0,0,0.12);
+}
+
+body {
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  font-size: 16px;
+  line-height: 1.5;
+  padding-bottom: 20px;
+}
+
+/* ====== Update Banner ====== */
+.update-banner {
+  position: sticky;
+  top: 0;
+  z-index: 9999;
+  background: var(--accent);
+  color: #fff;
+  padding: 8px 16px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.update-banner button {
+  background: #fff;
+  color: var(--accent);
+  border: none;
+  padding: 4px 16px;
+  border-radius: 4px;
+  font-weight: 700;
+  cursor: pointer;
+  font-size: 14px;
+}
+
+/* ====== Screen Management ====== */
+.screen {
+  display: none;
+  max-width: 600px;
+  margin: 0 auto;
+  padding: 0 12px;
+}
+
+.screen.active {
+  display: block;
+}
+
+/* ====== Header ====== */
+.header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 0;
+  background: var(--primary);
+  color: #fff;
+  margin: 0 -12px 12px;
+  padding-left: 12px;
+  padding-right: 12px;
+}
+
+.header h1 {
+  font-size: 18px;
+  font-weight: 700;
+  flex: 1;
+}
+
+/* ====== Card ====== */
+.card {
+  background: var(--card-bg);
+  border-radius: var(--radius);
+  padding: 16px;
+  box-shadow: var(--shadow);
+  margin-bottom: 16px;
+}
+
+.card h3 {
+  margin-bottom: 12px;
+  color: var(--primary);
+  font-size: 16px;
+}
+
+/* ====== Forms ====== */
+.form-group {
+  margin-bottom: 14px;
+}
+
+.form-row {
+  display: flex;
+  gap: 10px;
+}
+
+.form-row .form-group {
+  flex: 1;
+}
+
+label {
+  display: block;
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--text-secondary);
+  margin-bottom: 4px;
+}
+
+input[type="text"],
+input[type="password"],
+input[type="date"],
+input[type="text"][readonly],
+select {
+  width: 100%;
+  padding: 10px 12px;
+  border: 2px solid var(--border);
+  border-radius: var(--radius);
+  font-size: 16px;
+  background: #fff;
+  color: var(--text);
+  transition: border-color 0.2s;
+}
+
+input:focus, select:focus {
+  border-color: var(--primary);
+  outline: none;
+}
+
+input[readonly] {
+  background: #f5f5f5;
+  color: var(--text-secondary);
+}
+
+/* ====== QR Display ====== */
+.qr-display {
+  display: flex;
+  gap: 8px;
+}
+
+.qr-display input {
+  flex: 1;
+}
+
+/* ====== Photo Area ====== */
+.photo-area {
+  text-align: center;
+}
+
+.photo-preview {
+  width: 100%;
+  max-width: 300px;
+  border-radius: var(--radius);
+  border: 2px solid var(--border);
+  margin-bottom: 8px;
+}
+
+/* ====== Buttons ====== */
+.btn {
+  padding: 12px 20px;
+  border: none;
+  border-radius: var(--radius);
+  font-size: 16px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: opacity 0.2s, transform 0.1s;
+  text-align: center;
+}
+
+.btn:active {
+  transform: scale(0.97);
+}
+
+.btn-primary {
+  background: var(--primary);
+  color: #fff;
+}
+
+.btn-success {
+  background: var(--success);
+  color: #fff;
+}
+
+.btn-danger {
+  background: var(--danger);
+  color: #fff;
+}
+
+.btn-info {
+  background: var(--info);
+  color: #fff;
+}
+
+.btn-secondary {
+  background: #78909c;
+  color: #fff;
+}
+
+.btn-full {
+  width: 100%;
+  margin-bottom: 8px;
+}
+
+.btn-sm {
+  padding: 10px 14px;
+  font-size: 14px;
+  white-space: nowrap;
+}
+
+.btn-group {
+  display: flex;
+  gap: 8px;
+  margin-top: 8px;
+}
+
+.btn-group .btn {
+  flex: 1;
+  margin-bottom: 0;
+}
+
+/* ====== Icon Buttons ====== */
+.btn-icon {
+  background: none;
+  border: none;
+  font-size: 22px;
+  cursor: pointer;
+  padding: 4px 8px;
+  border-radius: 4px;
+  color: inherit;
+}
+
+.btn-back {
+  color: #fff;
+  font-size: 24px;
+}
+
+.btn-close {
+  color: var(--text-secondary);
+  font-size: 20px;
+}
+
+/* ====== Tab Bar ====== */
+.tab-bar {
+  display: flex;
+  background: var(--card-bg);
+  border-radius: var(--radius);
+  overflow: hidden;
+  margin-bottom: 12px;
+  box-shadow: var(--shadow);
+}
+
+.tab-btn {
+  flex: 1;
+  padding: 12px 4px;
+  border: none;
+  background: #f5f5f5;
+  color: var(--text-secondary);
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.tab-btn.active {
+  background: var(--primary);
+  color: #fff;
+}
+
+.tab-content {
+  display: none;
+}
+
+.tab-content.active {
+  display: block;
+}
+
+/* ====== Modal ====== */
+.modal {
+  position: fixed;
+  inset: 0;
+  z-index: 1000;
+  background: rgba(0,0,0,0.6);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 12px;
+}
+
+.modal.hidden {
+  display: none;
+}
+
+.modal-content {
+  background: #fff;
+  border-radius: var(--radius);
+  padding: 16px;
+  width: 100%;
+  max-width: 500px;
+  max-height: 90vh;
+  overflow-y: auto;
+}
+
+.modal-sm {
+  max-width: 350px;
+}
+
+.modal-lg {
+  max-width: 700px;
+}
+
+.modal-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 12px;
+}
+
+.modal-header h2 {
+  font-size: 18px;
+  color: var(--primary);
+}
+
+/* ====== QR Reader ====== */
+#qr-reader {
+  width: 100%;
+  border-radius: var(--radius);
+  overflow: hidden;
+}
+
+#qr-reader video {
+  width: 100% !important;
+  border-radius: var(--radius);
+}
+
+.hint {
+  text-align: center;
+  color: var(--text-secondary);
+  font-size: 14px;
+  margin-top: 8px;
+}
+
+/* ====== Camera ====== */
+#camera-video {
+  width: 100%;
+  border-radius: var(--radius);
+  margin-bottom: 8px;
+}
+
+/* ====== Data View ====== */
+.dataview-content {
+  overflow-x: auto;
+}
+
+.data-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 13px;
+  min-width: 600px;
+}
+
+.data-table th {
+  background: var(--primary);
+  color: #fff;
+  padding: 8px 6px;
+  text-align: left;
+  position: sticky;
+  top: 0;
+  white-space: nowrap;
+}
+
+.data-table td {
+  padding: 6px;
+  border-bottom: 1px solid var(--border);
+  white-space: nowrap;
+}
+
+.data-table tr:nth-child(even) {
+  background: #f5f5f5;
+}
+
+.data-table tr:hover {
+  background: var(--primary-light);
+}
+
+.data-table .td-photo img {
+  width: 60px;
+  height: 45px;
+  object-fit: cover;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.data-table .td-actions {
+  white-space: nowrap;
+}
+
+.data-table .td-actions button {
+  padding: 4px 10px;
+  font-size: 12px;
+  border-radius: 4px;
+  border: none;
+  cursor: pointer;
+  font-weight: 600;
+}
+
+.btn-delete-row {
+  background: var(--danger);
+  color: #fff;
+}
+
+.export-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 13px;
+}
+
+.export-table th {
+  background: var(--primary);
+  color: #fff;
+  padding: 8px;
+  text-align: center;
+}
+
+.export-table td {
+  padding: 6px 8px;
+  border: 1px solid var(--border);
+  text-align: center;
+}
+
+.export-table tr:nth-child(even) {
+  background: #f5f5f5;
+}
+
+/* ====== Toast ====== */
+.toast {
+  position: fixed;
+  bottom: 30px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: rgba(33,33,33,0.9);
+  color: #fff;
+  padding: 12px 24px;
+  border-radius: var(--radius);
+  font-size: 14px;
+  z-index: 10000;
+  max-width: 90%;
+  text-align: center;
+}
+
+.toast.hidden {
+  display: none;
+}
+
+.toast.error {
+  background: var(--danger);
+}
+
+.toast.success {
+  background: var(--success);
+}
+
+/* ====== Utility ====== */
+.hidden {
+  display: none !important;
+}
+
+.empty-msg {
+  text-align: center;
+  color: var(--text-secondary);
+  padding: 40px 0;
+  font-size: 16px;
+}
+
+/* ====== Responsive ====== */
+@media (max-width: 400px) {
+  .form-row {
+    flex-direction: column;
+    gap: 0;
+  }
+
+  .tab-btn {
+    font-size: 12px;
+    padding: 10px 2px;
+  }
+}

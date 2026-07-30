@@ -1,0 +1,513 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+  <title>出矿管理系统</title>
+  <link rel="manifest" href="manifest.json">
+  <meta name="theme-color" content="#1565c0">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="default">
+  <meta name="apple-mobile-web-app-title" content="出矿管理">
+  <link rel="apple-touch-icon" href="icons/icon-192.png">
+  <link rel="icon" type="image/png" href="icons/icon-192.png">
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+<!-- ====== Update Banner ====== -->
+<div id="update-banner" class="update-banner hidden">
+  <span>&#9888; 检测到新版本</span>
+  <button id="btn-refresh-update">立即刷新</button>
+</div>
+
+<!-- ====== Main Screen ====== -->
+<div id="screen-main" class="screen active">
+  <div class="header">
+    <h1>出矿管理系统</h1>
+  </div>
+  <div class="card">
+    <div class="form-group">
+      <label>数据录入人员 (Person)</label>
+      <input type="text" id="person" placeholder="输入姓名">
+    </div>
+    <div class="form-group">
+      <label>日期 (Date)</label>
+      <input type="text" id="main-date" readonly>
+    </div>
+    <div class="form-group">
+      <label>班次 (Shift)</label>
+      <input type="text" id="main-shift" readonly>
+    </div>
+    <div class="form-group">
+      <label>工作区域 (Working Site)</label>
+      <select id="working-site">
+        <option value="">-- 请选择 --</option>
+        <option value="openpit">采坑 (Open-pit)</option>
+        <option value="stockpile">堆场 (Stockpile)</option>
+        <option value="breakdown">故障和押矿车辆 (Breakdown/Parking)</option>
+      </select>
+    </div>
+    <button class="btn btn-primary btn-full" id="btn-enter-site">进入</button>
+  </div>
+</div>
+
+<!-- ====== Open-pit Screen ====== -->
+<div id="screen-openpit" class="screen">
+  <div class="header">
+    <button class="btn-icon btn-back" data-back="main">&#8592;</button>
+    <h1>采坑 (Open-pit)</h1>
+  </div>
+  <div class="card">
+    <div class="form-row">
+      <div class="form-group">
+        <label>作业平台 (Location)</label>
+        <input type="text" id="op-location" placeholder="如: P1-1050">
+      </div>
+      <div class="form-group">
+        <label>爆堆编号 (Blasting Area)</label>
+        <input type="text" id="op-blasting" placeholder="如: B-2026-001">
+      </div>
+    </div>
+    <div class="form-row">
+      <div class="form-group">
+        <label>挖机编号 (Shovel)</label>
+        <input type="text" id="op-shovel" placeholder="如: EX-01">
+      </div>
+      <div class="form-group">
+        <label>车辆编号 (Vehicle No.)</label>
+        <input type="text" id="op-vehicle" placeholder="必填，提交后清空">
+      </div>
+    </div>
+    <div class="form-row">
+      <div class="form-group">
+        <label>车辆型号 (Vehicle Type)</label>
+        <select id="op-vehicle-type">
+          <option value="">-- 选择 --</option>
+          <option value="33">33</option>
+          <option value="22">22</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label>地层 (Formation)</label>
+        <select id="op-formation">
+          <option value="">-- 选择 --</option>
+          <option value="SDS">SDS</option>
+          <option value="BOMZ">BOMZ</option>
+          <option value="SDB">SDB</option>
+          <option value="RSC">RSC</option>
+          <option value="RSF">RSF</option>
+          <option value="Ds">Ds</option>
+          <option value="CMN">CMN</option>
+          <option value="RAT">RAT</option>
+          <option value="BRAT">BRAT</option>
+        </select>
+      </div>
+    </div>
+    <div class="form-row">
+      <div class="form-group">
+        <label>矿石品级 (Grade)</label>
+        <select id="op-grade">
+          <option value="">-- 选择 --</option>
+          <option value="H">高 (H)</option>
+          <option value="M">中 (M)</option>
+          <option value="L">低 (L)</option>
+          <option value="W">废石 (W)</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label>硬度 (Hardness)</label>
+        <select id="op-hardness">
+          <option value="">-- 选择 --</option>
+          <option value="Block">块矿 (Block)</option>
+          <option value="Fine">粉矿 (Fine)</option>
+          <option value="Mix">混合矿 (Mix)</option>
+        </select>
+      </div>
+    </div>
+    <div class="form-row">
+      <div class="form-group">
+        <label>矿石类型 (Mineral Type)</label>
+        <select id="op-mineral-type">
+          <option value="">-- 选择 --</option>
+          <option value="F1">F1</option><option value="F2">F2</option>
+          <option value="F3">F3</option><option value="F4">F4</option>
+          <option value="F5">F5</option><option value="L1">L1</option>
+          <option value="L2">L2</option><option value="L3">L3</option>
+          <option value="L4">L4</option><option value="L5">L5</option>
+          <option value="S1">S1</option><option value="W">W</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label>矿岩去向 (Destination)</label>
+        <select id="op-destination">
+          <option value="">-- 选择 --</option>
+          <option value="F">选厂 (F)</option>
+          <option value="L">湿法一期 (L)</option>
+          <option value="T">湿法二期 (T)</option>
+          <option value="S">表外堆 (S)</option>
+          <option value="W">废石 (W)</option>
+          <option value="DL">垫路 (DL)</option>
+          <option value="JX">解小块 (JX)</option>
+        </select>
+      </div>
+    </div>
+
+    <div class="form-group">
+      <label>矿牌 (QR Code)</label>
+      <div class="qr-display">
+        <input type="text" id="op-qr" readonly placeholder="扫描后自动填入">
+        <button class="btn btn-secondary btn-sm" id="op-scan-qr">扫描</button>
+      </div>
+    </div>
+
+    <div class="form-group">
+      <label>车辆照片 (Vehicle Photo)</label>
+      <div class="photo-area">
+        <img id="op-photo-preview" class="photo-preview hidden" alt="车辆照片">
+        <button class="btn btn-secondary btn-full" id="op-take-photo">拍照</button>
+      </div>
+    </div>
+
+    <button class="btn btn-primary btn-full" id="op-submit">上传数据 (Submit Data)</button>
+    <div class="btn-group">
+      <button class="btn btn-info" id="op-data-view">数据查看</button>
+      <button class="btn btn-success" id="op-export">导出数据</button>
+      <button class="btn btn-danger" id="op-delete">删除数据</button>
+    </div>
+  </div>
+</div>
+
+<!-- ====== Stockpile Screen ====== -->
+<div id="screen-stockpile" class="screen">
+  <div class="header">
+    <button class="btn-icon btn-back" data-back="main">&#8592;</button>
+    <h1>堆场 (Stockpile)</h1>
+  </div>
+  <div class="card">
+    <div class="form-row">
+      <div class="form-group">
+        <label>堆场位置 (Stockpile)</label>
+        <select id="sp-stockpile">
+          <option value="">-- 选择 --</option>
+          <option value="F">选厂 (F)</option>
+          <option value="L">湿法一期 (L)</option>
+          <option value="T">湿法二期 (T)</option>
+          <option value="S">表外堆 (S)</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label>车辆编号 (Vehicle No.)</label>
+        <input type="text" id="sp-vehicle" placeholder="必填，提交后清空">
+      </div>
+    </div>
+    <div class="form-group">
+      <label>矿石类型 (Mineral Type)</label>
+      <select id="sp-mineral-type">
+        <option value="">-- 选择 --</option>
+        <option value="F1">F1</option><option value="F2">F2</option>
+        <option value="F3">F3</option><option value="F3A">F3A</option>
+        <option value="F4">F4</option><option value="F5">F5</option>
+        <option value="L1">L1</option><option value="L2">L2</option>
+        <option value="L3">L3</option><option value="L4">L4</option>
+        <option value="L5">L5</option>
+        <option value="HL1">HL1</option><option value="HL2">HL2</option>
+        <option value="HL4">HL4</option><option value="HL5">HL5</option>
+        <option value="S1">S1</option><option value="S2">S2</option>
+        <option value="S3">S3</option>
+      </select>
+    </div>
+
+    <div class="form-group">
+      <label>矿牌 (QR Code)</label>
+      <div class="qr-display">
+        <input type="text" id="sp-qr" readonly placeholder="扫描后自动填入">
+        <button class="btn btn-secondary btn-sm" id="sp-scan-qr">扫描</button>
+      </div>
+    </div>
+
+    <div class="form-group">
+      <label>车辆照片 (Vehicle Photo)</label>
+      <div class="photo-area">
+        <img id="sp-photo-preview" class="photo-preview hidden" alt="车辆照片">
+        <button class="btn btn-secondary btn-full" id="sp-take-photo">拍照</button>
+      </div>
+    </div>
+
+    <button class="btn btn-primary btn-full" id="sp-submit">上传数据 (Submit Data)</button>
+    <div class="btn-group">
+      <button class="btn btn-info" id="sp-data-view">数据查看</button>
+      <button class="btn btn-success" id="sp-export">导出数据</button>
+      <button class="btn btn-danger" id="sp-delete">删除数据</button>
+    </div>
+  </div>
+</div>
+
+<!-- ====== Breakdown/Parking Screen ====== -->
+<div id="screen-breakdown" class="screen">
+  <div class="header">
+    <button class="btn-icon btn-back" data-back="main">&#8592;</button>
+    <h1>故障/押矿 (Breakdown/Parking)</h1>
+  </div>
+  <div class="tab-bar">
+    <button class="tab-btn active" data-tab="breakdown-tab">故障车辆</button>
+    <button class="tab-btn" data-tab="parking-tab">押矿车辆</button>
+    <button class="tab-btn" data-tab="bd-export-tab">导出数据</button>
+  </div>
+
+  <!-- Breakdown Tab -->
+  <div id="breakdown-tab" class="tab-content active">
+    <div class="card">
+      <div class="form-row">
+        <div class="form-group">
+          <label>故障日期 (Breakdown Date)</label>
+          <input type="text" id="bd-date" readonly>
+        </div>
+        <div class="form-group">
+          <label>故障班次 (Breakdown Shift)</label>
+          <select id="bd-shift">
+            <option value="">-- 选择 --</option>
+            <option value="Day Shift">白班 (Day Shift)</option>
+            <option value="Night Shift">夜班 (Night Shift)</option>
+          </select>
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label>计划转运日期 (Planned Transfer Date)</label>
+          <input type="date" id="bd-transfer-date">
+        </div>
+        <div class="form-group">
+          <label>计划转运班次 (Planned Transfer Shift)</label>
+          <select id="bd-transfer-shift">
+            <option value="">-- 选择 --</option>
+            <option value="Day Shift">白班 (Day Shift)</option>
+            <option value="Night Shift">夜班 (Night Shift)</option>
+          </select>
+        </div>
+      </div>
+      <div class="form-group">
+        <label>矿牌 (QR Code)</label>
+        <div class="qr-display">
+          <input type="text" id="bd-qr" readonly placeholder="扫描后自动填入">
+          <button class="btn btn-secondary btn-sm" id="bd-scan-qr">扫描</button>
+        </div>
+      </div>
+      <div class="form-group">
+        <label>故障车编号 (Breakdown Vehicle No.)</label>
+        <input type="text" id="bd-vehicle" placeholder="输入故障车编号">
+      </div>
+      <div class="form-group">
+        <label>故障车照片 (Breakdown Vehicle Photo)</label>
+        <div class="photo-area">
+          <img id="bd-photo-preview" class="photo-preview hidden" alt="故障车照片">
+          <button class="btn btn-secondary btn-full" id="bd-take-photo">拍照</button>
+        </div>
+      </div>
+      <div class="form-group">
+        <label>新车编号 (New Vehicle No.)</label>
+        <input type="text" id="bd-new-vehicle" placeholder="输入新车编号">
+      </div>
+      <div class="form-group">
+        <label>新车照片 (New Vehicle Photo)</label>
+        <div class="photo-area">
+          <img id="bd-new-photo-preview" class="photo-preview hidden" alt="新车照片">
+          <button class="btn btn-secondary btn-full" id="bd-take-new-photo">拍照</button>
+        </div>
+      </div>
+      <button class="btn btn-primary btn-full" id="bd-submit">上传数据 (Submit Data)</button>
+      <div class="btn-group">
+        <button class="btn btn-info" id="bd-data-view">数据查看</button>
+        <button class="btn btn-danger" id="bd-delete">删除数据</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Parking Tab -->
+  <div id="parking-tab" class="tab-content">
+    <div class="card">
+      <div class="form-row">
+        <div class="form-group">
+          <label>故障日期 (Breakdown Date)</label>
+          <input type="text" id="pk-date" readonly>
+        </div>
+        <div class="form-group">
+          <label>故障班次 (Breakdown Shift)</label>
+          <select id="pk-shift">
+            <option value="">-- 选择 --</option>
+            <option value="Day Shift">白班 (Day Shift)</option>
+            <option value="Night Shift">夜班 (Night Shift)</option>
+          </select>
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label>计划转运日期 (Planned Transfer Date)</label>
+          <input type="date" id="pk-transfer-date">
+        </div>
+        <div class="form-group">
+          <label>计划转运班次 (Planned Transfer Shift)</label>
+          <select id="pk-transfer-shift">
+            <option value="">-- 选择 --</option>
+            <option value="Day Shift">白班 (Day Shift)</option>
+            <option value="Night Shift">夜班 (Night Shift)</option>
+          </select>
+        </div>
+      </div>
+      <div class="form-group">
+        <label>矿牌 (QR Code)</label>
+        <div class="qr-display">
+          <input type="text" id="pk-qr" readonly placeholder="扫描后自动填入">
+          <button class="btn btn-secondary btn-sm" id="pk-scan-qr">扫描</button>
+        </div>
+      </div>
+      <div class="form-group">
+        <label>押矿车辆编号 (Parking Vehicle No.)</label>
+        <input type="text" id="pk-vehicle" placeholder="输入押矿车辆编号">
+      </div>
+      <div class="form-group">
+        <label>押矿车辆照片 (Parking Vehicle Photo)</label>
+        <div class="photo-area">
+          <img id="pk-photo-preview" class="photo-preview hidden" alt="押矿车辆照片">
+          <button class="btn btn-secondary btn-full" id="pk-take-photo">拍照</button>
+        </div>
+      </div>
+      <button class="btn btn-primary btn-full" id="pk-submit">上传数据 (Submit Data)</button>
+      <div class="btn-group">
+        <button class="btn btn-info" id="pk-data-view">数据查看</button>
+        <button class="btn btn-danger" id="pk-delete">删除数据</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Export Tab -->
+  <div id="bd-export-tab" class="tab-content">
+    <div class="card">
+      <h3>导出数据 (Export Data)</h3>
+      <div class="form-group">
+        <label>选择数据类型</label>
+        <select id="bd-export-type">
+          <option value="breakdown">故障车辆 (Vehicle Breakdown)</option>
+          <option value="parking">押矿车辆 (Vehicles in Parking Lot)</option>
+        </select>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label>日期筛选</label>
+          <input type="date" id="bd-export-date">
+        </div>
+        <div class="form-group">
+          <label>班次筛选</label>
+          <select id="bd-export-shift">
+            <option value="">全部</option>
+            <option value="Day Shift">白班 (Day Shift)</option>
+            <option value="Night Shift">夜班 (Night Shift)</option>
+          </select>
+        </div>
+      </div>
+      <div class="btn-group">
+        <button class="btn btn-success btn-full" id="bd-export-excel">导出 Excel</button>
+        <button class="btn btn-info btn-full" id="bd-export-png">导出 PNG</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ====== QR Scanner Modal ====== -->
+<div id="qr-modal" class="modal hidden">
+  <div class="modal-content">
+    <div class="modal-header">
+      <h2>扫描矿牌二维码</h2>
+      <button class="btn-icon btn-close" id="qr-close">&#10005;</button>
+    </div>
+    <div id="qr-reader"></div>
+    <p class="hint">将二维码对准摄像头</p>
+  </div>
+</div>
+
+<!-- ====== Camera Modal ====== -->
+<div id="camera-modal" class="modal hidden">
+  <div class="modal-content">
+    <div class="modal-header">
+      <h2 id="camera-title">拍照</h2>
+      <button class="btn-icon btn-close" id="camera-close">&#10005;</button>
+    </div>
+    <video id="camera-video" autoplay playsinline></video>
+    <button class="btn btn-primary btn-full" id="camera-capture">拍照</button>
+  </div>
+</div>
+
+<!-- ====== Password Modal ====== -->
+<div id="password-modal" class="modal hidden">
+  <div class="modal-content modal-sm">
+    <div class="modal-header">
+      <h2>请输入密码</h2>
+      <button class="btn-icon btn-close" id="password-close">&#10005;</button>
+    </div>
+    <input type="password" id="password-input" placeholder="输入密码">
+    <button class="btn btn-primary btn-full" id="password-confirm">确认</button>
+  </div>
+</div>
+
+<!-- ====== Delete Options Modal ====== -->
+<div id="delete-modal" class="modal hidden">
+  <div class="modal-content modal-sm">
+    <div class="modal-header">
+      <h2>删除数据</h2>
+      <button class="btn-icon btn-close" id="delete-close">&#10005;</button>
+    </div>
+    <button class="btn btn-danger btn-full" id="delete-single">删除单条数据</button>
+    <button class="btn btn-danger btn-full" id="delete-all">删除全部数据</button>
+  </div>
+</div>
+
+<!-- ====== Data View Modal ====== -->
+<div id="dataview-modal" class="modal hidden">
+  <div class="modal-content modal-lg">
+    <div class="modal-header">
+      <h2 id="dataview-title">数据查看</h2>
+      <button class="btn-icon btn-close" id="dataview-close">&#10005;</button>
+    </div>
+    <div id="dataview-content" class="dataview-content"></div>
+  </div>
+</div>
+
+<!-- ====== Export Modal ====== -->
+<div id="export-modal" class="modal hidden">
+  <div class="modal-content modal-sm">
+    <div class="modal-header">
+      <h2>导出数据</h2>
+      <button class="btn-icon btn-close" id="export-close">&#10005;</button>
+    </div>
+    <div class="form-group">
+      <label>日期筛选</label>
+      <input type="date" id="export-date">
+    </div>
+    <div class="form-group">
+      <label>班次筛选</label>
+      <select id="export-shift">
+        <option value="">全部</option>
+        <option value="Day Shift">白班 (Day Shift)</option>
+        <option value="Night Shift">夜班 (Night Shift)</option>
+      </select>
+    </div>
+    <button class="btn btn-success btn-full" id="export-excel-btn">导出 Excel</button>
+    <button class="btn btn-info btn-full" id="export-png-btn">导出 PNG 图片</button>
+  </div>
+</div>
+
+<!-- ====== Toast ====== -->
+<div id="toast" class="toast hidden"></div>
+
+<!-- ====== Scripts ====== -->
+<script src="lib/html5-qrcode.min.js"></script>
+<script src="lib/xlsx.full.min.js"></script>
+<script src="lib/html2canvas.min.js"></script>
+<script src="js/db.js"></script>
+<script src="js/utils.js"></script>
+<script src="js/scanner.js"></script>
+<script src="js/camera.js"></script>
+<script src="js/exporter.js"></script>
+<script src="js/app.js"></script>
+</body>
+</html>
