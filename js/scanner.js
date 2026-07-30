@@ -5,9 +5,12 @@ const Scanner = (function() {
   let html5Qr = null;
   let onScanCallback = null;
   let scanning = false;
+  let stopping = false;
 
   function start(containerId, callback) {
     onScanCallback = callback;
+    scanning = false;
+    stopping = false;
     const container = document.getElementById(containerId);
     if (!container) return;
 
@@ -63,14 +66,16 @@ const Scanner = (function() {
 
   function stop() {
     scanning = false;
-    if (html5Qr) {
-      html5Qr.stop().then(() => {
-        html5Qr.clear();
-        html5Qr = null;
-      }).catch(() => {
-        html5Qr = null;
-      });
-    }
+    if (stopping || !html5Qr) return;
+    stopping = true;
+    const qr = html5Qr;
+    html5Qr = null;
+    qr.stop().then(() => {
+      qr.clear();
+      stopping = false;
+    }).catch(() => {
+      stopping = false;
+    });
   }
 
   return { start, stop };

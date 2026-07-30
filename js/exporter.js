@@ -13,7 +13,7 @@ const Exporter = {
       const row = {};
       headers.forEach(h => {
         let val = r[h.key];
-        if (h.key === 'photo' || h.key === 'breakdownPhoto' || h.key === 'newVehiclePhoto' || h.key === 'parkingPhoto') {
+        if (h.key === 'photo' || h.key === 'breakdownPhoto' || h.key === 'newVehiclePhoto' || h.key === 'parkingPhoto' || h.key === 'vehiclePhoto') {
           val = val ? '[Photo]' : '';
         }
         row[h.label] = val != null ? val : '';
@@ -74,7 +74,7 @@ const Exporter = {
         headers.forEach(h => {
           const td = document.createElement('td');
           let val = r[h.key];
-          if (h.key === 'photo' || h.key === 'breakdownPhoto' || h.key === 'newVehiclePhoto' || h.key === 'parkingPhoto') {
+          if (h.key === 'photo' || h.key === 'breakdownPhoto' || h.key === 'newVehiclePhoto' || h.key === 'parkingPhoto' || h.key === 'vehiclePhoto') {
             if (val) {
               const img = document.createElement('img');
               img.src = val;

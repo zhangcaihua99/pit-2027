@@ -62,17 +62,17 @@
     <div class="form-row">
       <div class="form-group">
         <label>作业平台 (Location)</label>
-        <input type="text" id="op-location" placeholder="如: P1-1050">
+        <input type="text" id="op-location" placeholder="如：1178">
       </div>
       <div class="form-group">
         <label>爆堆编号 (Blasting Area)</label>
-        <input type="text" id="op-blasting" placeholder="如: B-2026-001">
+        <input type="text" id="op-blasting" placeholder="如：PK26071190-6">
       </div>
     </div>
     <div class="form-row">
       <div class="form-group">
         <label>挖机编号 (Shovel)</label>
-        <input type="text" id="op-shovel" placeholder="如: EX-01">
+        <input type="text" id="op-shovel" placeholder="如：32">
       </div>
       <div class="form-group">
         <label>车辆编号 (Vehicle No.)</label>
@@ -156,7 +156,7 @@
     <div class="form-group">
       <label>矿牌 (QR Code)</label>
       <div class="qr-display">
-        <input type="text" id="op-qr" placeholder="扫描或手动输入">
+        <input type="text" id="op-qr" readonly placeholder="扫描后自动填入">
         <button class="btn btn-secondary btn-sm" id="op-scan-qr">扫描</button>
       </div>
     </div>
@@ -221,7 +221,7 @@
     <div class="form-group">
       <label>矿牌 (QR Code)</label>
       <div class="qr-display">
-        <input type="text" id="sp-qr" placeholder="扫描或手动输入">
+        <input type="text" id="sp-qr" readonly placeholder="扫描后自动填入">
         <button class="btn btn-secondary btn-sm" id="sp-scan-qr">扫描</button>
       </div>
     </div>
@@ -289,7 +289,7 @@
       <div class="form-group">
         <label>矿牌 (QR Code)</label>
         <div class="qr-display">
-          <input type="text" id="bd-qr" placeholder="扫描或手动输入">
+          <input type="text" id="bd-qr" readonly placeholder="扫描后自动填入">
           <button class="btn btn-secondary btn-sm" id="bd-scan-qr">扫描</button>
         </div>
       </div>
@@ -357,7 +357,7 @@
       <div class="form-group">
         <label>矿牌 (QR Code)</label>
         <div class="qr-display">
-          <input type="text" id="pk-qr" placeholder="扫描或手动输入">
+          <input type="text" id="pk-qr" readonly placeholder="扫描后自动填入">
           <button class="btn btn-secondary btn-sm" id="pk-scan-qr">扫描</button>
         </div>
       </div>
@@ -389,6 +389,7 @@
         <select id="bd-export-type">
           <option value="breakdown">故障车辆 (Vehicle Breakdown)</option>
           <option value="parking">押矿车辆 (Vehicles in Parking Lot)</option>
+          <option value="all">全部 (All)</option>
         </select>
       </div>
       <div class="form-row">

@@ -83,7 +83,7 @@ const App = {
     if (d.grade) document.getElementById('op-grade').value = d.grade;
     if (d.hardness) document.getElementById('op-hardness').value = d.hardness;
     if (d.mineralType) document.getElementById('op-mineral-type').value = d.mineralType;
-    document.getElementById('op-destination').value = '';
+    if (d.destination) document.getElementById('op-destination').value = d.destination;
     document.getElementById('op-qr').value = '';
     document.getElementById('op-photo-preview').classList.add('hidden');
     document.getElementById('op-photo-preview').src = '';
@@ -103,11 +103,6 @@ const App = {
     // Manual QR scan button
     document.getElementById('op-scan-qr').addEventListener('click', () => {
       this.startQRScan('openpit');
-    });
-
-    // Manual QR entry
-    document.getElementById('op-qr').addEventListener('change', (e) => {
-      this.handleManualQR('openpit', e.target.value.trim());
     });
 
     // Manual photo button
@@ -170,7 +165,7 @@ const App = {
     const hardness = document.getElementById('op-hardness').value;
     const mineralType = document.getElementById('op-mineral-type').value;
     const destination = document.getElementById('op-destination').value;
-    const qrCode = this.state.openpit.qrCode;
+    const qrCode = this.state.openpit.qrCode || document.getElementById('op-qr').value.trim();
     const photo = this.state.openpit.photo;
 
     // Validation
@@ -195,7 +190,7 @@ const App = {
     await DB.add(DB.STORES.openpit, record);
 
     // Save defaults
-    await Utils.saveDefaults('openpit', { location, blasting, shovel, vehicleType, formation, grade, hardness, mineralType });
+    await Utils.saveDefaults('openpit', { location, blasting, shovel, vehicleType, formation, grade, hardness, mineralType, destination });
 
     // Clear vehicle no, QR, photo, destination
     document.getElementById('op-vehicle').value = '';
@@ -235,10 +230,6 @@ const App = {
 
     document.getElementById('sp-scan-qr').addEventListener('click', () => {
       this.startQRScan('stockpile');
-    });
-
-    document.getElementById('sp-qr').addEventListener('change', (e) => {
-      this.handleManualQR('stockpile', e.target.value.trim());
     });
 
     document.getElementById('sp-take-photo').addEventListener('click', () => {
@@ -282,7 +273,7 @@ const App = {
     const stockpile = document.getElementById('sp-stockpile').value;
     const vehicleNo = document.getElementById('sp-vehicle').value.trim();
     const mineralType = document.getElementById('sp-mineral-type').value;
-    const qrCode = this.state.stockpile.qrCode;
+    const qrCode = this.state.stockpile.qrCode || document.getElementById('sp-qr').value.trim();
     const photo = this.state.stockpile.photo;
 
     const fields = [
@@ -366,9 +357,6 @@ const App = {
       }
     });
     document.getElementById('bd-scan-qr').addEventListener('click', () => this.startQRScan('breakdown'));
-    document.getElementById('bd-qr').addEventListener('change', (e) => {
-      this.handleManualQR('breakdown', e.target.value.trim());
-    });
 
     // Breakdown photo auto-trigger on vehicle no. change
     document.getElementById('bd-vehicle').addEventListener('change', () => {
@@ -426,7 +414,7 @@ const App = {
     const breakdownShift = document.getElementById('bd-shift').value;
     const transferDate = document.getElementById('bd-transfer-date').value;
     const transferShift = document.getElementById('bd-transfer-shift').value;
-    const qrCode = this.state.breakdown.qrCode;
+    const qrCode = this.state.breakdown.qrCode || document.getElementById('bd-qr').value.trim();
     const breakdownVehicleNo = document.getElementById('bd-vehicle').value.trim();
     const breakdownPhoto = this.state.breakdown.breakdownPhoto;
     const newVehicleNo = document.getElementById('bd-new-vehicle').value.trim();
@@ -463,9 +451,6 @@ const App = {
       }
     });
     document.getElementById('pk-scan-qr').addEventListener('click', () => this.startQRScan('parking'));
-    document.getElementById('pk-qr').addEventListener('change', (e) => {
-      this.handleManualQR('parking', e.target.value.trim());
-    });
 
     // Parking photo auto-trigger
     document.getElementById('pk-vehicle').addEventListener('change', () => {
@@ -508,7 +493,7 @@ const App = {
     const breakdownShift = document.getElementById('pk-shift').value;
     const transferDate = document.getElementById('pk-transfer-date').value;
     const transferShift = document.getElementById('pk-transfer-shift').value;
-    const qrCode = this.state.parking.qrCode;
+    const qrCode = this.state.parking.qrCode || document.getElementById('pk-qr').value.trim();
     const parkingVehicleNo = document.getElementById('pk-vehicle').value.trim();
     const parkingPhoto = this.state.parking.parkingPhoto;
 
@@ -544,22 +529,51 @@ const App = {
     const filterDate = document.getElementById('bd-export-date').value;
     const filterShift = document.getElementById('bd-export-shift').value;
 
-    const storeName = exportType === 'parking' ? DB.STORES.parking : DB.STORES.breakdown;
-    let records = await DB.getAll(storeName);
+    let records = [];
+    let headers, label, filename, title;
 
-    if (filterDate) {
-      records = records.filter(r => (r.breakdownDate || r.date) === filterDate);
+    if (exportType === 'all') {
+      // Merge breakdown + parking records
+      const bdRecords = await DB.getAll(DB.STORES.breakdown);
+      const pkRecords = await DB.getAll(DB.STORES.parking);
+      // Normalize: add type field and unify field names
+      bdRecords.forEach(r => { r.recordType = '故障车辆 (Breakdown)'; r.vehicleNo = r.breakdownVehicleNo; r.vehiclePhoto = r.breakdownPhoto; });
+      pkRecords.forEach(r => { r.recordType = '押矿车辆 (Parking)'; r.vehicleNo = r.parkingVehicleNo; r.vehiclePhoto = r.parkingPhoto; });
+      records = bdRecords.concat(pkRecords);
+
+      if (filterDate) records = records.filter(r => (r.breakdownDate || r.date) === filterDate);
+      if (filterShift) records = records.filter(r => (r.breakdownShift || r.shift) === filterShift);
+      records.sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
+
+      headers = [
+        { key: 'recordType', label: 'Type' },
+        { key: 'breakdownDate', label: 'Breakdown Date' },
+        { key: 'breakdownShift', label: 'Breakdown Shift' },
+        { key: 'transferDate', label: 'Transfer Date' },
+        { key: 'transferShift', label: 'Transfer Shift' },
+        { key: 'qrCode', label: 'Tag (QR)' },
+        { key: 'vehicleNo', label: 'Vehicle No.' },
+        { key: 'vehiclePhoto', label: 'Vehicle Photo' },
+        { key: 'newVehicleNo', label: 'New Vehicle No.' },
+        { key: 'newVehiclePhoto', label: 'New Vehicle Photo' },
+        { key: 'timestamp', label: 'Timestamp' }
+      ];
+      label = 'All';
+      filename = label + '_' + Utils.getTimestampStr();
+      title = '全部数据 (All Data)';
+    } else {
+      const storeName = exportType === 'parking' ? DB.STORES.parking : DB.STORES.breakdown;
+      records = await DB.getAll(storeName);
+
+      if (filterDate) records = records.filter(r => (r.breakdownDate || r.date) === filterDate);
+      if (filterShift) records = records.filter(r => (r.breakdownShift || r.shift) === filterShift);
+      records.sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
+
+      headers = exportType === 'parking' ? this.getParkingHeaders() : this.getBreakdownHeaders();
+      label = exportType === 'parking' ? 'Parking' : 'Breakdown';
+      filename = label + '_' + Utils.getTimestampStr();
+      title = exportType === 'parking' ? '押矿车辆数据 (Vehicles in Parking Lot)' : '故障车辆数据 (Vehicle Breakdown)';
     }
-    if (filterShift) {
-      records = records.filter(r => (r.breakdownShift || r.shift) === filterShift);
-    }
-
-    records.sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
-
-    const headers = exportType === 'parking' ? this.getParkingHeaders() : this.getBreakdownHeaders();
-    const label = exportType === 'parking' ? 'Stockpile' : 'Breakdown';
-    const filename = label + '_' + Utils.getTimestampStr();
-    const title = exportType === 'parking' ? '押矿车辆数据 (Vehicles in Parking Lot)' : '故障车辆数据 (Vehicle Breakdown)';
 
     if (records.length === 0) {
       Utils.toast('没有数据可导出', 'error');
@@ -587,17 +601,9 @@ const App = {
 
   async onQRScanned(decodedText) {
     document.getElementById('qr-modal').classList.add('hidden');
-    Scanner.stop();
-
-    // Check duplicate (3 hours)
-    const isDup = await DB.isQRRegisteredRecently(decodedText);
-    if (isDup) {
-      Utils.toast('QR code already registered.', 'error');
-      return;
-    }
 
     const ctx = this.state.qrContext;
-    // Fill QR field and store in state
+    // Immediately fill QR field and store in state
     const qrInputMap = {
       openpit: 'op-qr',
       stockpile: 'sp-qr',
@@ -607,6 +613,15 @@ const App = {
     const inputId = qrInputMap[ctx];
     if (inputId) document.getElementById(inputId).value = decodedText;
     this.state[ctx].qrCode = decodedText;
+
+    // Check duplicate (3 hours) - async
+    const isDup = await DB.isQRRegisteredRecently(decodedText);
+    if (isDup) {
+      Utils.toast('QR code already registered.', 'error');
+      if (inputId) document.getElementById(inputId).value = '';
+      this.state[ctx].qrCode = '';
+      return;
+    }
 
     Utils.toast('扫描成功!', 'success');
 
