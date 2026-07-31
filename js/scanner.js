@@ -24,7 +24,7 @@ const Scanner = (function() {
       html5Qr = new Html5Qrcode(containerId, fmts);
     } catch(e) {
       console.error('Scanner init error:', e);
-      Utils.toast('扫码初始化失败', 'error');
+      Utils.toast('扫码初始化失败<br><span class="en">Scanner init failed</span>', 'error');
       return;
     }
 
@@ -47,7 +47,7 @@ const Scanner = (function() {
       scanning = true;
     }).catch(err => {
       console.error('Camera start error:', err);
-      Utils.toast('无法访问摄像头，请检查权限', 'error');
+      Utils.toast('无法访问摄像头，请检查权限<br><span class="en">Camera unavailable</span>', 'error');
     });
   }
 

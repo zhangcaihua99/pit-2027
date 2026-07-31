@@ -108,7 +108,7 @@ const Exporter = {
     }).catch(err => {
       document.body.removeChild(container);
       console.error('PNG export error:', err);
-      Utils.toast('PNG导出失败', 'error');
+      Utils.toast('PNG导出失败<br><span class="en">PNG export failed</span>', 'error');
     });
   }
 };

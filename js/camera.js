@@ -21,13 +21,13 @@ const Camera = (function() {
       videoEl.play();
     }).catch(err => {
       console.error('Camera error:', err);
-      Utils.toast('无法访问摄像头，请检查权限', 'error');
+      Utils.toast('无法访问摄像头，请检查权限<br><span class="en">Camera unavailable</span>', 'error');
     });
   }
 
   function capture() {
     if (!videoEl || !stream) {
-      Utils.toast('摄像头未就绪', 'error');
+      Utils.toast('摄像头未就绪<br><span class="en">Camera not ready</span>', 'error');
       return;
     }
 

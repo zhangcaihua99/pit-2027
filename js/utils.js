@@ -42,7 +42,7 @@ const Utils = {
    */
   toast(msg, type) {
     const el = document.getElementById('toast');
-    el.textContent = msg;
+    el.innerHTML = msg;
     el.className = 'toast' + (type ? ' ' + type : '');
     setTimeout(() => el.classList.add('hidden'), 3000);
   },

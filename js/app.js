@@ -56,9 +56,9 @@ const App = {
   bindMainScreen() {
     document.getElementById('btn-enter-site').addEventListener('click', () => {
       const person = document.getElementById('person').value.trim();
-      if (!person) { Utils.toast('请输入数据录入人员', 'error'); return; }
+      if (!person) { Utils.toast('请输入数据录入人员<br><span class="en">Please enter operator</span>', 'error'); return; }
       const site = document.getElementById('working-site').value;
-      if (!site) { Utils.toast('请选择工作区域', 'error'); return; }
+      if (!site) { Utils.toast('请选择工作区域<br><span class="en">Please select working site</span>', 'error'); return; }
       DB.setSetting('defaults_main', { person });
       this.showScreen(site);
     });
@@ -170,13 +170,13 @@ const App = {
 
     // Validation
     const fields = [
-      [person, '录入人员'], [location, '作业平台'], [blasting, '爆堆编号'],
-      [shovel, '挖机编号'], [vehicleNo, '车辆编号'], [vehicleType, '车辆型号'],
-      [formation, '地层'], [grade, '矿石品级'], [hardness, '硬度'],
-      [mineralType, '矿石类型'], [destination, '矿岩去向'], [qrCode, '矿牌'], [photo, '车辆照片']
+      [person, '录入人员', 'Operator'], [location, '作业平台', 'Location'], [blasting, '爆堆编号', 'Blasting Area'],
+      [shovel, '挖机编号', 'Shovel'], [vehicleNo, '车辆编号', 'Vehicle No.'], [vehicleType, '车辆型号', 'Vehicle Type'],
+      [formation, '地层', 'Formation'], [grade, '矿石品级', 'Grade'], [hardness, '硬度', 'Hardness'],
+      [mineralType, '矿石类型', 'Mineral Type'], [destination, '矿岩去向', 'Destination'], [qrCode, '矿牌', 'Tag (QR)'], [photo, '车辆照片', 'Vehicle Photo']
     ];
-    for (const [val, name] of fields) {
-      if (!val) { Utils.toast('请填写: ' + name, 'error'); return; }
+    for (const [val, zh, en] of fields) {
+      if (!val) { Utils.toast('请填写: ' + zh + '<br><span class="en">Please fill: ' + en + '</span>', 'error'); return; }
     }
 
     const record = {
@@ -202,7 +202,7 @@ const App = {
     this.state.openpit.qrCode = '';
     this.state.openpit.photo = '';
 
-    Utils.toast('数据上传成功!', 'success');
+    Utils.toast('数据上传成功!<br><span class="en">Data submitted!</span>', 'success');
   },
 
   // ==================== Stockpile Screen ====================
@@ -277,11 +277,11 @@ const App = {
     const photo = this.state.stockpile.photo;
 
     const fields = [
-      [person, '录入人员'], [stockpile, '堆场位置'], [vehicleNo, '车辆编号'],
-      [mineralType, '矿石类型'], [qrCode, '矿牌'], [photo, '车辆照片']
+      [person, '录入人员', 'Operator'], [stockpile, '堆场位置', 'Stockpile'], [vehicleNo, '车辆编号', 'Vehicle No.'],
+      [mineralType, '矿石类型', 'Mineral Type'], [qrCode, '矿牌', 'Tag (QR)'], [photo, '车辆照片', 'Vehicle Photo']
     ];
-    for (const [val, name] of fields) {
-      if (!val) { Utils.toast('请填写: ' + name, 'error'); return; }
+    for (const [val, zh, en] of fields) {
+      if (!val) { Utils.toast('请填写: ' + zh + '<br><span class="en">Please fill: ' + en + '</span>', 'error'); return; }
     }
 
     const record = {
@@ -302,7 +302,7 @@ const App = {
     this.state.stockpile.qrCode = '';
     this.state.stockpile.photo = '';
 
-    Utils.toast('数据上传成功!', 'success');
+    Utils.toast('数据上传成功!<br><span class="en">Data submitted!</span>', 'success');
   },
 
   // ==================== Breakdown Screen ====================
@@ -421,13 +421,13 @@ const App = {
     const newVehiclePhoto = this.state.breakdown.newVehiclePhoto;
 
     const fields = [
-      [breakdownDate, '故障日期'], [breakdownShift, '故障班次'],
-      [transferDate, '计划转运日期'], [transferShift, '计划转运班次'],
-      [qrCode, '矿牌'], [breakdownVehicleNo, '故障车编号'],
-      [breakdownPhoto, '故障车照片'], [newVehicleNo, '新车编号'], [newVehiclePhoto, '新车照片']
+      [breakdownDate, '故障日期', 'Breakdown Date'], [breakdownShift, '故障班次', 'Breakdown Shift'],
+      [transferDate, '计划转运日期', 'Transfer Date'], [transferShift, '计划转运班次', 'Transfer Shift'],
+      [qrCode, '矿牌', 'Tag (QR)'], [breakdownVehicleNo, '故障车编号', 'Breakdown Vehicle No.'],
+      [breakdownPhoto, '故障车照片', 'Breakdown Vehicle Photo'], [newVehicleNo, '新车编号', 'New Vehicle No.'], [newVehiclePhoto, '新车照片', 'New Vehicle Photo']
     ];
-    for (const [val, name] of fields) {
-      if (!val) { Utils.toast('请填写: ' + name, 'error'); return; }
+    for (const [val, zh, en] of fields) {
+      if (!val) { Utils.toast('请填写: ' + zh + '<br><span class="en">Please fill: ' + en + '</span>', 'error'); return; }
     }
 
     const record = {
@@ -439,7 +439,7 @@ const App = {
     await DB.add(DB.STORES.breakdown, record);
     this.resetBreakdownForm();
     document.getElementById('bd-date').value = Utils.getTodayStr();
-    Utils.toast('数据上传成功!', 'success');
+    Utils.toast('数据上传成功!<br><span class="en">Data submitted!</span>', 'success');
   },
 
   // ==================== Parking Screen ====================
@@ -498,12 +498,12 @@ const App = {
     const parkingPhoto = this.state.parking.parkingPhoto;
 
     const fields = [
-      [breakdownDate, '押矿日期'], [breakdownShift, '押矿班次'],
-      [transferDate, '计划转运日期'], [transferShift, '计划转运班次'],
-      [qrCode, '矿牌'], [parkingVehicleNo, '押矿车辆编号'], [parkingPhoto, '押矿车辆照片']
+      [breakdownDate, '押矿日期', 'Parking Date'], [breakdownShift, '押矿班次', 'Parking Shift'],
+      [transferDate, '计划转运日期', 'Transfer Date'], [transferShift, '计划转运班次', 'Transfer Shift'],
+      [qrCode, '矿牌', 'Tag (QR)'], [parkingVehicleNo, '押矿车辆编号', 'Parking Vehicle No.'], [parkingPhoto, '押矿车辆照片', 'Parking Vehicle Photo']
     ];
-    for (const [val, name] of fields) {
-      if (!val) { Utils.toast('请填写: ' + name, 'error'); return; }
+    for (const [val, zh, en] of fields) {
+      if (!val) { Utils.toast('请填写: ' + zh + '<br><span class="en">Please fill: ' + en + '</span>', 'error'); return; }
     }
 
     const record = {
@@ -515,7 +515,7 @@ const App = {
     await DB.add(DB.STORES.parking, record);
     this.resetParkingForm();
     document.getElementById('pk-date').value = Utils.getTodayStr();
-    Utils.toast('数据上传成功!', 'success');
+    Utils.toast('数据上传成功!<br><span class="en">Data submitted!</span>', 'success');
   },
 
   // ==================== Export Tab (Breakdown/Parking) ====================
@@ -576,7 +576,7 @@ const App = {
     }
 
     if (records.length === 0) {
-      Utils.toast('没有数据可导出', 'error');
+      Utils.toast('没有数据可导出<br><span class="en">No data to export</span>', 'error');
       return;
     }
 
@@ -585,7 +585,7 @@ const App = {
     } else {
       Exporter.toPNG(records, headers, filename, title);
     }
-    Utils.toast('导出成功!', 'success');
+    Utils.toast('导出成功!<br><span class="en">Exported!</span>', 'success');
   },
 
   // ==================== QR Scanning ====================
@@ -623,7 +623,7 @@ const App = {
       return;
     }
 
-    Utils.toast('扫描成功!', 'success');
+    Utils.toast('扫描成功!<br><span class="en">Scan successful!</span>', 'success');
 
     // For openpit and stockpile, auto-open camera after QR scan
     if (ctx === 'openpit') {
@@ -648,7 +648,7 @@ const App = {
       return;
     }
     this.state[ctx].qrCode = value;
-    Utils.toast('矿牌已录入', 'success');
+    Utils.toast('矿牌已录入<br><span class="en">Tag recorded</span>', 'success');
   },
 
   // ==================== Camera / Photo ====================
@@ -692,7 +692,7 @@ const App = {
       img.src = photoData;
       img.classList.remove('hidden');
     }
-    Utils.toast('拍照成功!', 'success');
+    Utils.toast('拍照成功!<br><span class="en">Photo taken!</span>', 'success');
   },
 
   // ==================== Data View ====================
@@ -764,7 +764,7 @@ const App = {
         parking: DB.STORES.parking
       };
       await DB.remove(storeMap[storeKey], id);
-      Utils.toast('删除成功!', 'success');
+      Utils.toast('删除成功!<br><span class="en">Deleted!</span>', 'success');
       // Refresh data view
       const headersMap = {
         openpit: this.getOpenPitHeaders(),
@@ -820,7 +820,7 @@ const App = {
     records.sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
 
     if (records.length === 0) {
-      Utils.toast('没有数据可导出', 'error');
+      Utils.toast('没有数据可导出<br><span class="en">No data to export</span>', 'error');
       return;
     }
 
@@ -833,7 +833,7 @@ const App = {
     } else {
       Exporter.toPNG(records, headers, filename, title);
     }
-    Utils.toast('导出成功!', 'success');
+    Utils.toast('导出成功!<br><span class="en">Exported!</span>', 'success');
   },
 
   // ==================== Modals ====================
@@ -867,7 +867,7 @@ const App = {
         App._passwordCallback = null;
         if (cb) cb();
       } else {
-        Utils.toast('密码错误!', 'error');
+        Utils.toast('密码错误!<br><span class="en">Wrong password!</span>', 'error');
       }
     });
 
@@ -897,7 +897,7 @@ const App = {
       document.getElementById('delete-modal').classList.add('hidden');
       this.showPasswordModal(async () => {
         await DB.clear(this.state.deleteStore);
-        Utils.toast('全部数据已删除!', 'success');
+        Utils.toast('全部数据已删除!<br><span class="en">All data deleted!</span>', 'success');
       });
     });
 

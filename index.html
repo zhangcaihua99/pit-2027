@@ -171,9 +171,9 @@
 
     <button class="btn btn-primary btn-full" id="op-submit">上传数据 (Submit Data)</button>
     <div class="btn-group">
-      <button class="btn btn-info" id="op-data-view">数据查看</button>
-      <button class="btn btn-success" id="op-export">导出数据</button>
-      <button class="btn btn-danger" id="op-delete">删除数据</button>
+      <button class="btn btn-info" id="op-data-view">数据查看<br><span class="en">(Data View)</span></button>
+      <button class="btn btn-success" id="op-export">导出数据<br><span class="en">(Export Data)</span></button>
+      <button class="btn btn-danger" id="op-delete">删除数据<br><span class="en">(Delete Data)</span></button>
     </div>
   </div>
 </div>
@@ -236,9 +236,9 @@
 
     <button class="btn btn-primary btn-full" id="sp-submit">上传数据 (Submit Data)</button>
     <div class="btn-group">
-      <button class="btn btn-info" id="sp-data-view">数据查看</button>
-      <button class="btn btn-success" id="sp-export">导出数据</button>
-      <button class="btn btn-danger" id="sp-delete">删除数据</button>
+      <button class="btn btn-info" id="sp-data-view">数据查看<br><span class="en">(Data View)</span></button>
+      <button class="btn btn-success" id="sp-export">导出数据<br><span class="en">(Export Data)</span></button>
+      <button class="btn btn-danger" id="sp-delete">删除数据<br><span class="en">(Delete Data)</span></button>
     </div>
   </div>
 </div>
@@ -252,7 +252,7 @@
   <div class="tab-bar">
     <button class="tab-btn active" data-tab="breakdown-tab">故障车辆</button>
     <button class="tab-btn" data-tab="parking-tab">押矿车辆</button>
-    <button class="tab-btn" data-tab="bd-export-tab">导出数据</button>
+    <button class="tab-btn" data-tab="bd-export-tab">导出数据<br><span class="en">(Export Data)</span></button>
   </div>
 
   <!-- Breakdown Tab -->
@@ -317,8 +317,8 @@
       </div>
       <button class="btn btn-primary btn-full" id="bd-submit">上传数据 (Submit Data)</button>
       <div class="btn-group">
-        <button class="btn btn-info" id="bd-data-view">数据查看</button>
-        <button class="btn btn-danger" id="bd-delete">删除数据</button>
+        <button class="btn btn-info" id="bd-data-view">数据查看<br><span class="en">(Data View)</span></button>
+        <button class="btn btn-danger" id="bd-delete">删除数据<br><span class="en">(Delete Data)</span></button>
       </div>
     </div>
   </div>
@@ -374,8 +374,8 @@
       </div>
       <button class="btn btn-primary btn-full" id="pk-submit">上传数据 (Submit Data)</button>
       <div class="btn-group">
-        <button class="btn btn-info" id="pk-data-view">数据查看</button>
-        <button class="btn btn-danger" id="pk-delete">删除数据</button>
+        <button class="btn btn-info" id="pk-data-view">数据查看<br><span class="en">(Data View)</span></button>
+        <button class="btn btn-danger" id="pk-delete">删除数据<br><span class="en">(Delete Data)</span></button>
       </div>
     </div>
   </div>
@@ -418,11 +418,11 @@
 <div id="qr-modal" class="modal hidden">
   <div class="modal-content">
     <div class="modal-header">
-      <h2>扫描矿牌二维码</h2>
+      <h2>扫描矿牌二维码<br><span class="en">(Scan QR Code)</span></h2>
       <button class="btn-icon btn-close" id="qr-close">&#10005;</button>
     </div>
     <div id="qr-reader"></div>
-    <p class="hint">将二维码对准摄像头</p>
+    <p class="hint">将二维码对准摄像头<br><span class="en">(Align QR code with camera)</span></p>
   </div>
 </div>
 
@@ -442,7 +442,7 @@
 <div id="password-modal" class="modal hidden">
   <div class="modal-content modal-sm">
     <div class="modal-header">
-      <h2>请输入密码</h2>
+      <h2>请输入密码<br><span class="en">(Enter Password)</span></h2>
       <button class="btn-icon btn-close" id="password-close">&#10005;</button>
     </div>
     <input type="password" id="password-input" placeholder="输入密码">
@@ -454,11 +454,11 @@
 <div id="delete-modal" class="modal hidden">
   <div class="modal-content modal-sm">
     <div class="modal-header">
-      <h2>删除数据</h2>
+      <h2>删除数据<br><span class="en">(Delete Data)</span></h2>
       <button class="btn-icon btn-close" id="delete-close">&#10005;</button>
     </div>
-    <button class="btn btn-danger btn-full" id="delete-single">删除单条数据</button>
-    <button class="btn btn-danger btn-full" id="delete-all">删除全部数据</button>
+    <button class="btn btn-danger btn-full" id="delete-single">删除单条数据<br><span class="en">(Delete Single)</span></button>
+    <button class="btn btn-danger btn-full" id="delete-all">删除全部数据<br><span class="en">(Delete All)</span></button>
   </div>
 </div>
 
@@ -466,7 +466,7 @@
 <div id="dataview-modal" class="modal hidden">
   <div class="modal-content modal-lg">
     <div class="modal-header">
-      <h2 id="dataview-title">数据查看</h2>
+      <h2 id="dataview-title">数据查看<br><span class="en">(Data View)</span></h2>
       <button class="btn-icon btn-close" id="dataview-close">&#10005;</button>
     </div>
     <div id="dataview-content" class="dataview-content"></div>
@@ -477,7 +477,7 @@
 <div id="export-modal" class="modal hidden">
   <div class="modal-content modal-sm">
     <div class="modal-header">
-      <h2>导出数据</h2>
+      <h2>导出数据<br><span class="en">(Export Data)</span></h2>
       <button class="btn-icon btn-close" id="export-close">&#10005;</button>
     </div>
     <div class="form-group">
