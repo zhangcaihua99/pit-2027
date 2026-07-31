@@ -505,6 +505,22 @@ input[readonly] {
   background: var(--success);
 }
 
+/* ====== Storage Info ====== */
+.storage-info {
+  background: var(--primary-light);
+  border-radius: var(--radius);
+  padding: 10px 12px;
+  font-size: 13px;
+  color: var(--text-secondary);
+  margin-bottom: 12px;
+  line-height: 1.6;
+}
+
+.storage-info .en {
+  font-size: 11px;
+  opacity: 0.7;
+}
+
 /* ====== Utility ====== */
 .hidden {
   display: none !important;
