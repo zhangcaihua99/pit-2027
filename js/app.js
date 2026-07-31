@@ -83,7 +83,15 @@ const App = {
     if (d.grade) document.getElementById('op-grade').value = d.grade;
     if (d.hardness) document.getElementById('op-hardness').value = d.hardness;
     if (d.mineralType) document.getElementById('op-mineral-type').value = d.mineralType;
-    if (d.destination) document.getElementById('op-destination').value = d.destination;
+    if (d.destination) {
+      document.getElementById('op-destination').value = d.destination;
+      // Auto-fill QR if saved destination is Waste Rock (W)
+      if (d.destination === 'W') {
+        const wasteText = '废石无需扫码Waste Rock · No Scan Required';
+        document.getElementById('op-qr').value = wasteText;
+        this.state.openpit.qrCode = wasteText;
+      }
+    }
     document.getElementById('op-qr').value = '';
     document.getElementById('op-photo-preview').classList.add('hidden');
     document.getElementById('op-photo-preview').src = '';
@@ -209,15 +217,20 @@ const App = {
     // Save defaults
     await Utils.saveDefaults('openpit', { location, blasting, shovel, vehicleType, formation, grade, hardness, mineralType, destination });
 
-    // Clear vehicle no, QR, photo, destination
+    // Clear vehicle no, QR, photo — keep destination as default for next entry
     document.getElementById('op-vehicle').value = '';
-    document.getElementById('op-destination').value = '';
     document.getElementById('op-qr').value = '';
     const preview = document.getElementById('op-photo-preview');
     preview.classList.add('hidden');
     preview.src = '';
     this.state.openpit.qrCode = '';
     this.state.openpit.photo = '';
+    // Re-apply waste-rock auto-fill if destination is W
+    if (destination === 'W') {
+      const wasteText = '废石无需扫码Waste Rock · No Scan Required';
+      document.getElementById('op-qr').value = wasteText;
+      this.state.openpit.qrCode = wasteText;
+    }
 
     Utils.toast('数据上传成功!<br><span class="en">Data submitted!</span>', 'success');
   },
