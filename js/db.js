@@ -99,16 +99,24 @@ const DB = (function() {
   }
 
   /**
-   * Check if a QR code was registered within the last 3 hours across all stores
+   * Check if a QR code was registered within the last 3 hours on the SAME DAY
+   * across all stores. Returns true if duplicate detected.
    */
   async function isQRRegisteredRecently(qrCode) {
     if (!qrCode) return false;
-    const threeHoursAgo = Date.now() - 3 * 60 * 60 * 1000;
+    const now = Date.now();
+    const threeHoursAgo = now - 3 * 60 * 60 * 1000;
+    // Get today's date string (YYYY-MM-DD) for same-day filtering
+    const today = new Date(now).toISOString().slice(0, 10);
     const allStores = [STORES.openpit, STORES.stockpile, STORES.breakdown, STORES.parking];
     for (const s of allStores) {
       const records = await getAll(s);
       for (const r of records) {
-        if (r.qrCode === qrCode && r.timestamp >= threeHoursAgo) {
+        if (r.qrCode !== qrCode) continue;
+        // Convert ISO string timestamp to milliseconds for comparison
+        const recordTime = new Date(r.timestamp).getTime();
+        // Must be same day AND within 3 hours
+        if (r.timestamp.slice(0, 10) === today && recordTime >= threeHoursAgo) {
           return true;
         }
       }

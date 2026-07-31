@@ -603,7 +603,6 @@ const App = {
     document.getElementById('qr-modal').classList.add('hidden');
 
     const ctx = this.state.qrContext;
-    // Immediately fill QR field and store in state
     const qrInputMap = {
       openpit: 'op-qr',
       stockpile: 'sp-qr',
@@ -611,17 +610,20 @@ const App = {
       parking: 'pk-qr'
     };
     const inputId = qrInputMap[ctx];
-    if (inputId) document.getElementById(inputId).value = decodedText;
-    this.state[ctx].qrCode = decodedText;
 
-    // Check duplicate (3 hours) - async
+    // Check duplicate FIRST — before filling any field
     const isDup = await DB.isQRRegisteredRecently(decodedText);
     if (isDup) {
-      Utils.toast('QR code already registered.', 'error');
+      Utils.toast('QR code already registered.<br><span class="en">重复扫描，3小时内同一矿牌不可重复录入</span>', 'error');
+      // Ensure the QR field stays empty on duplicate
       if (inputId) document.getElementById(inputId).value = '';
       this.state[ctx].qrCode = '';
       return;
     }
+
+    // Only fill QR field after passing duplicate check
+    if (inputId) document.getElementById(inputId).value = decodedText;
+    this.state[ctx].qrCode = decodedText;
 
     Utils.toast('扫描成功!<br><span class="en">Scan successful!</span>', 'success');
 
