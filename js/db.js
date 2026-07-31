@@ -119,5 +119,63 @@ const DB = (function() {
     return false;
   }
 
-  return { add, getAll, remove, clear, getSetting, setSetting, isQRRegisteredRecently, STORES };
+  /**
+   * Export ALL data from every store as a JSON-serializable object.
+   * Includes openpit, stockpile, breakdown, parking, and settings.
+   * @returns {Promise<Object>} { version, exportDate, stores: {...} }
+   */
+  async function exportAll() {
+    const result = {
+      appName: 'OPMS',
+      version: 1,
+      exportDate: new Date().toISOString(),
+      stores: {}
+    };
+    for (const key of Object.keys(STORES)) {
+      const storeName = STORES[key];
+      result.stores[key] = await getAll(storeName);
+    }
+    return result;
+  }
+
+  /**
+   * Import data from a JSON object previously created by exportAll().
+   * Clears ALL existing data before importing (destructive operation).
+   * @param {Object} data - The parsed JSON backup object
+   * @returns {Promise<Object>} { imported: { storeName: count } }
+   */
+  async function importAll(data) {
+    if (!data || !data.stores) throw new Error('Invalid backup file');
+    const summary = {};
+    for (const key of Object.keys(STORES)) {
+      const storeName = STORES[key];
+      // Clear existing data
+      await clear(storeName);
+      // Import records
+      const records = data.stores[key] || [];
+      for (const r of records) {
+        // Remove auto-increment id to let DB assign new ones
+        if ('id' in r) delete r.id;
+        await add(storeName, r);
+      }
+      summary[key] = records.length;
+    }
+    return summary;
+  }
+
+  /**
+   * Count records in all data stores (excluding settings).
+   * @returns {Promise<Object>} { openpit: N, stockpile: N, ... }
+   */
+  async function countAll() {
+    const counts = {};
+    for (const key of Object.keys(STORES)) {
+      if (key === 'settings') continue;
+      const records = await getAll(STORES[key]);
+      counts[key] = records.length;
+    }
+    return counts;
+  }
+
+  return { add, getAll, remove, clear, getSetting, setSetting, isQRRegisteredRecently, exportAll, importAll, countAll, STORES };
 })();
