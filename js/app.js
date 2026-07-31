@@ -25,13 +25,41 @@ const App = {
     this.bindParking();
     this.bindModals();
     this.bindExportTab();
+    this.bindBackupRestore();
     this.registerSW();
+    this.requestPersistentStorage();
     // Fill main screen date/shift
     this.refreshMainScreen();
     // Restore person
     DB.getSetting('defaults_main').then(d => {
       if (d && d.person) document.getElementById('person').value = d.person;
     });
+    // Show storage info on main screen
+    this.updateStorageInfo();
+  },
+
+  // ==================== Persistent Storage ====================
+  /**
+   * Request the browser to mark this site's data as "persistent"
+   * so it won't be automatically evicted during storage pressure
+   * or when the user clears browsing data (some browsers respect this).
+   */
+  async requestPersistentStorage() {
+    if (navigator.storage && navigator.storage.persist) {
+      try {
+        const isPersisted = await navigator.storage.persisted();
+        if (!isPersisted) {
+          const granted = await navigator.storage.persist();
+          if (granted) {
+            console.log('[OPMS] Persistent storage granted');
+          } else {
+            console.log('[OPMS] Persistent storage request denied (browser may auto-evict data)');
+          }
+        }
+      } catch (e) {
+        console.warn('[OPMS] persist() not supported:', e);
+      }
+    }
   },
 
   // ==================== Screen Management ====================
@@ -963,6 +991,122 @@ const App = {
     document.getElementById('password-input').value = '';
     document.getElementById('password-modal').classList.remove('hidden');
     setTimeout(() => document.getElementById('password-input').focus(), 100);
+  },
+
+  // ==================== Backup & Restore ====================
+  bindBackupRestore() {
+    document.getElementById('btn-backup').addEventListener('click', () => this.doBackup());
+    // Restore needs password
+    document.getElementById('btn-restore').addEventListener('click', () => {
+      this.showPasswordModal(() => {
+        document.getElementById('restore-file-input').click();
+      });
+    });
+    // Hidden file input for restore
+    document.getElementById('restore-file-input').addEventListener('change', (e) => this.doRestore(e));
+  },
+
+  /**
+   * Export ALL data (all 4 stores + settings) as a single JSON file.
+   * This is the primary defense against data loss from phone cleaning.
+   */
+  async doBackup() {
+    try {
+      const data = await DB.exportAll();
+      const counts = await DB.countAll();
+      const total = Object.values(counts).reduce((a, b) => a + b, 0);
+      if (total === 0) {
+        Utils.toast('暂无数据可备份<br><span class="en">No data to backup</span>', 'error');
+        return;
+      }
+      const json = JSON.stringify(data);
+      const blob = new Blob([json], { type: 'application/json' });
+      const filename = 'OPMS_Backup_' + Utils.getTimestampStr() + '.json';
+      Utils.downloadBlob(blob, filename);
+      const summary = Object.entries(counts)
+        .filter(([_, v]) => v > 0)
+        .map(([k, v]) => k + ':' + v)
+        .join(' ');
+      Utils.toast('备份成功! 共' + total + '条 (' + summary + ')<br><span class="en">Backup saved! ' + total + ' records</span>', 'success');
+    } catch (e) {
+      console.error('Backup error:', e);
+      Utils.toast('备份失败: ' + e.message + '<br><span class="en">Backup failed</span>', 'error');
+    }
+  },
+
+  /**
+   * Import data from a JSON backup file.
+   * This OVERWRITES all existing data — password already verified before file selection.
+   */
+  async doRestore(event) {
+    const file = event.target.files[0];
+    // Reset input so the same file can be selected again
+    event.target.value = '';
+    if (!file) return;
+
+    try {
+      const text = await file.text();
+      const data = JSON.parse(text);
+      if (!data.appName || data.appName !== 'OPMS' || !data.stores) {
+        Utils.toast('无效的备份文件<br><span class="en">Invalid backup file</span>', 'error');
+        return;
+      }
+      const summary = await DB.importAll(data);
+      const total = Object.values(summary).reduce((a, b) => a + b, 0);
+      Utils.toast('恢复成功! 共' + total + '条数据<br><span class="en">Restored! ' + total + ' records</span>', 'success');
+      // Refresh storage info
+      this.updateStorageInfo();
+    } catch (e) {
+      console.error('Restore error:', e);
+      Utils.toast('恢复失败: ' + e.message + '<br><span class="en">Restore failed</span>', 'error');
+    }
+  },
+
+  /**
+   * Show storage usage estimate (navigator.storage.estimate).
+   * Also show persistent status and record counts.
+   */
+  async updateStorageInfo() {
+    const el = document.getElementById('storage-info');
+    if (!el) return;
+
+    // Get record counts
+    const counts = await DB.countAll();
+    const total = Object.values(counts).reduce((a, b) => a + b, 0);
+
+    // Get storage estimate
+    let storageText = '';
+    if (navigator.storage && navigator.storage.estimate) {
+      try {
+        const est = await navigator.storage.estimate();
+        const usedMB = (est.usage / 1024 / 1024).toFixed(1);
+        const quotaMB = (est.quota / 1024 / 1024).toFixed(0);
+        storageText = usedMB + ' MB / ' + quotaMB + ' MB';
+      } catch (e) {
+        storageText = '--';
+      }
+    }
+
+    // Check persistent status
+    let persistText = '';
+    if (navigator.storage && navigator.storage.persisted) {
+      try {
+        const persisted = await navigator.storage.persisted();
+        persistText = persisted
+          ? '已保护 ✓'
+          : '未保护 ✗';
+      } catch (e) {
+        persistText = '--';
+      }
+    }
+
+    el.innerHTML =
+      '数据记录: ' + total + ' 条 (' +
+      '采坑' + (counts.openpit || 0) +
+      ' / 堆场' + (counts.stockpile || 0) +
+      ' / 故障' + (counts.breakdown || 0) +
+      ' / 押矿' + (counts.parking || 0) + ')' +
+      '<br><span class="en">Storage: ' + storageText + ' · ' + persistText + '</span>';
   },
 
   // ==================== Service Worker ====================
