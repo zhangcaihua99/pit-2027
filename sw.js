@@ -4,7 +4,7 @@
  *            so the browser detects a new version and shows the
  *            "检测到新版本" banner to users.
  */
-const CACHE_VERSION = 'v1.0.7';
+const CACHE_VERSION = 'v1.0.8';
 const CACHE_NAME = 'mining-mgmt-' + CACHE_VERSION;
 
 const ASSETS = [
@@ -25,8 +25,9 @@ const ASSETS = [
   './icons/icon-512.png'
 ];
 
-// Install - cache all assets
+// Install - cache all assets, skip waiting immediately
 self.addEventListener('install', event => {
+  self.skipWaiting();
   event.waitUntil(
     caches.open(CACHE_NAME).then(cache => {
       return cache.addAll(ASSETS);
@@ -34,14 +35,14 @@ self.addEventListener('install', event => {
   );
 });
 
-// Activate - clean old caches
+// Activate - clean old caches, claim clients immediately
 self.addEventListener('activate', event => {
   event.waitUntil(
     caches.keys().then(keys => {
       return Promise.all(
         keys.filter(k => k !== CACHE_NAME).map(k => caches.delete(k))
       );
-    })
+    }).then(() => self.clients.claim())
   );
 });
 

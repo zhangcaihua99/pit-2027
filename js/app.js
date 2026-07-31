@@ -639,9 +639,9 @@ const App = {
       this.state[ctx].qrCode = '';
       return;
     }
-    const isDup = await DB.isQRRegisteredRecently(value);
+    const isDup = await DB.isQRRegisteredRecently(value, ctx);
     if (isDup) {
-      Utils.toast('QR code already registered.', 'error');
+      Utils.toast('重复扫描二维码<br><span class="en">Duplicate Scan Detected</span>', 'error');
       const qrInputMap = { openpit: 'op-qr', stockpile: 'sp-qr', breakdown: 'bd-qr', parking: 'pk-qr' };
       const inputId = qrInputMap[ctx];
       if (inputId) document.getElementById(inputId).value = '';
