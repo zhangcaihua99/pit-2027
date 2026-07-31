@@ -611,11 +611,10 @@ const App = {
     };
     const inputId = qrInputMap[ctx];
 
-    // Check duplicate FIRST — before filling any field
-    const isDup = await DB.isQRRegisteredRecently(decodedText);
+    // Check duplicate FIRST — only within the SAME area
+    const isDup = await DB.isQRRegisteredRecently(decodedText, ctx);
     if (isDup) {
-      Utils.toast('QR code already registered.<br><span class="en">重复扫描，3小时内同一矿牌不可重复录入</span>', 'error');
-      // Ensure the QR field stays empty on duplicate
+      Utils.toast('重复扫描二维码<br><span class="en">Duplicate Scan Detected</span>', 'error');
       if (inputId) document.getElementById(inputId).value = '';
       this.state[ctx].qrCode = '';
       return;
