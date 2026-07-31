@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-  <title>出矿管理系统</title>
+  <title>出矿管理系统 | OPMS</title>
   <link rel="manifest" href="manifest.json">
   <meta name="theme-color" content="#1565c0">
   <meta name="apple-mobile-web-app-capable" content="yes">
@@ -24,7 +24,7 @@
 <!-- ====== Main Screen ====== -->
 <div id="screen-main" class="screen active">
   <div class="header">
-    <h1>出矿管理系统</h1>
+    <h1>出矿管理系统<br><span class="en">OPMS · Developed by Zhang Caihua</span></h1>
   </div>
   <div class="card">
     <div class="form-group">
@@ -42,13 +42,13 @@
     <div class="form-group">
       <label>工作区域 (Working Site)</label>
       <select id="working-site">
-        <option value="">-- 请选择 --</option>
+        <option value="">-- 请选择 / Please Select --</option>
         <option value="openpit">采坑 (Open-pit)</option>
         <option value="stockpile">堆场 (Stockpile)</option>
         <option value="breakdown">故障和押矿车辆 (Breakdown/Parking)</option>
       </select>
     </div>
-    <button class="btn btn-primary btn-full" id="btn-enter-site">进入</button>
+    <button class="btn btn-primary btn-full" id="btn-enter-site">进入<br><span class="en">(Enter)</span></button>
   </div>
 </div>
 
@@ -156,8 +156,8 @@
     <div class="form-group">
       <label>矿牌 (QR Code)</label>
       <div class="qr-display">
-        <input type="text" id="op-qr" readonly placeholder="扫描后自动填入">
-        <button class="btn btn-secondary btn-sm" id="op-scan-qr">扫描</button>
+        <input type="text" id="op-qr" readonly placeholder="扫描后自动填入 / Auto-filled after scan">
+        <button class="btn btn-secondary btn-sm" id="op-scan-qr">扫描<br><span class="en">(Scanning)</span></button>
       </div>
     </div>
 
@@ -165,7 +165,7 @@
       <label>车辆照片 (Vehicle Photo)</label>
       <div class="photo-area">
         <img id="op-photo-preview" class="photo-preview hidden" alt="车辆照片">
-        <button class="btn btn-secondary btn-full" id="op-take-photo">拍照</button>
+        <button class="btn btn-secondary btn-full" id="op-take-photo">拍照<br><span class="en">(Camera)</span></button>
       </div>
     </div>
 
@@ -221,8 +221,8 @@
     <div class="form-group">
       <label>矿牌 (QR Code)</label>
       <div class="qr-display">
-        <input type="text" id="sp-qr" readonly placeholder="扫描后自动填入">
-        <button class="btn btn-secondary btn-sm" id="sp-scan-qr">扫描</button>
+        <input type="text" id="sp-qr" readonly placeholder="扫描后自动填入 / Auto-filled after scan">
+        <button class="btn btn-secondary btn-sm" id="sp-scan-qr">扫描<br><span class="en">(Scanning)</span></button>
       </div>
     </div>
 
@@ -230,7 +230,7 @@
       <label>车辆照片 (Vehicle Photo)</label>
       <div class="photo-area">
         <img id="sp-photo-preview" class="photo-preview hidden" alt="车辆照片">
-        <button class="btn btn-secondary btn-full" id="sp-take-photo">拍照</button>
+        <button class="btn btn-secondary btn-full" id="sp-take-photo">拍照<br><span class="en">(Camera)</span></button>
       </div>
     </div>
 
@@ -250,8 +250,8 @@
     <h1>故障/押矿 (Breakdown/Parking)</h1>
   </div>
   <div class="tab-bar">
-    <button class="tab-btn active" data-tab="breakdown-tab">故障车辆</button>
-    <button class="tab-btn" data-tab="parking-tab">押矿车辆</button>
+    <button class="tab-btn active" data-tab="breakdown-tab">故障车辆<br><span class="en">(Breakdown Vehicle)</span></button>
+    <button class="tab-btn" data-tab="parking-tab">押矿车辆<br><span class="en">(Parking Vehicle)</span></button>
     <button class="tab-btn" data-tab="bd-export-tab">导出数据<br><span class="en">(Export Data)</span></button>
   </div>
 
@@ -289,8 +289,8 @@
       <div class="form-group">
         <label>矿牌 (QR Code)</label>
         <div class="qr-display">
-          <input type="text" id="bd-qr" readonly placeholder="扫描后自动填入">
-          <button class="btn btn-secondary btn-sm" id="bd-scan-qr">扫描</button>
+          <input type="text" id="bd-qr" readonly placeholder="扫描后自动填入 / Auto-filled after scan">
+          <button class="btn btn-secondary btn-sm" id="bd-scan-qr">扫描<br><span class="en">(Scanning)</span></button>
         </div>
       </div>
       <div class="form-group">
@@ -301,7 +301,7 @@
         <label>故障车照片 (Breakdown Vehicle Photo)</label>
         <div class="photo-area">
           <img id="bd-photo-preview" class="photo-preview hidden" alt="故障车照片">
-          <button class="btn btn-secondary btn-full" id="bd-take-photo">拍照</button>
+          <button class="btn btn-secondary btn-full" id="bd-take-photo">拍照<br><span class="en">(Camera)</span></button>
         </div>
       </div>
       <div class="form-group">
@@ -312,7 +312,7 @@
         <label>新车照片 (New Vehicle Photo)</label>
         <div class="photo-area">
           <img id="bd-new-photo-preview" class="photo-preview hidden" alt="新车照片">
-          <button class="btn btn-secondary btn-full" id="bd-take-new-photo">拍照</button>
+          <button class="btn btn-secondary btn-full" id="bd-take-new-photo">拍照<br><span class="en">(Camera)</span></button>
         </div>
       </div>
       <button class="btn btn-primary btn-full" id="bd-submit">上传数据 (Submit Data)</button>
@@ -357,8 +357,8 @@
       <div class="form-group">
         <label>矿牌 (QR Code)</label>
         <div class="qr-display">
-          <input type="text" id="pk-qr" readonly placeholder="扫描后自动填入">
-          <button class="btn btn-secondary btn-sm" id="pk-scan-qr">扫描</button>
+          <input type="text" id="pk-qr" readonly placeholder="扫描后自动填入 / Auto-filled after scan">
+          <button class="btn btn-secondary btn-sm" id="pk-scan-qr">扫描<br><span class="en">(Scanning)</span></button>
         </div>
       </div>
       <div class="form-group">
@@ -369,7 +369,7 @@
         <label>押矿车辆照片 (Parking Vehicle Photo)</label>
         <div class="photo-area">
           <img id="pk-photo-preview" class="photo-preview hidden" alt="押矿车辆照片">
-          <button class="btn btn-secondary btn-full" id="pk-take-photo">拍照</button>
+          <button class="btn btn-secondary btn-full" id="pk-take-photo">拍照<br><span class="en">(Camera)</span></button>
         </div>
       </div>
       <button class="btn btn-primary btn-full" id="pk-submit">上传数据 (Submit Data)</button>
@@ -430,11 +430,11 @@
 <div id="camera-modal" class="modal hidden">
   <div class="modal-content">
     <div class="modal-header">
-      <h2 id="camera-title">拍照</h2>
+      <h2 id="camera-title">拍照<br><span class="en">(Camera)</span></h2>
       <button class="btn-icon btn-close" id="camera-close">&#10005;</button>
     </div>
     <video id="camera-video" autoplay playsinline></video>
-    <button class="btn btn-primary btn-full" id="camera-capture">拍照</button>
+    <button class="btn btn-primary btn-full" id="camera-capture">拍照<br><span class="en">(Camera)</span></button>
   </div>
 </div>
 
