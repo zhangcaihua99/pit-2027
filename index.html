@@ -50,6 +50,18 @@
     </div>
     <button class="btn btn-primary btn-full" id="btn-enter-site">进入<br><span class="en">(Enter)</span></button>
   </div>
+
+  <!-- ====== Backup & Restore ====== -->
+  <div class="card">
+    <h3>数据备份与恢复<br><span class="en">Data Backup & Restore</span></h3>
+    <div id="storage-info" class="storage-info">数据加载中...<br><span class="en">Loading...</span></div>
+    <div class="btn-group">
+      <button class="btn btn-success" id="btn-backup">备份数据<br><span class="en">(Backup)</span></button>
+      <button class="btn btn-info" id="btn-restore">恢复数据<br><span class="en">(Restore)</span></button>
+    </div>
+    <input type="file" id="restore-file-input" accept=".json" class="hidden">
+    <p class="hint">建议每天结束前备份一次，保存到手机文件<br><span class="en">Backup daily to prevent data loss from phone cleaning</span></p>
+  </div>
 </div>
 
 <!-- ====== Open-pit Screen ====== -->
