@@ -92,16 +92,29 @@ const App = {
   },
 
   bindOpenPit() {
-    // Auto-trigger QR scan on destination change
+    // Auto-trigger QR scan on destination change (skip for Waste Rock)
     document.getElementById('op-destination').addEventListener('change', () => {
       const dest = document.getElementById('op-destination').value;
-      if (dest) {
-        this.startQRScan('openpit');
+      if (!dest) return;
+      if (dest === 'W') {
+        // Waste Rock: auto-fill QR, no scan needed
+        const wasteText = '废石无需扫码Waste Rock · No Scan Required';
+        document.getElementById('op-qr').value = wasteText;
+        this.state.openpit.qrCode = wasteText;
+        // Skip photo too — waste rock doesn't need a photo
+        this.state.openpit.photo = 'WASTE_ROCK';
+        Utils.toast('废石无需扫码<br><span class="en">Waste Rock · No Scan Required</span>', 'success');
+        return;
       }
+      this.startQRScan('openpit');
     });
 
-    // Manual QR scan button
+    // Manual QR scan button (block if waste rock)
     document.getElementById('op-scan-qr').addEventListener('click', () => {
+      if (document.getElementById('op-destination').value === 'W') {
+        Utils.toast('废石无需扫码<br><span class="en">Waste Rock · No Scan Required</span>', 'success');
+        return;
+      }
       this.startQRScan('openpit');
     });
 
@@ -168,13 +181,17 @@ const App = {
     const qrCode = this.state.openpit.qrCode || document.getElementById('op-qr').value.trim();
     const photo = this.state.openpit.photo;
 
-    // Validation
+    // Validation — skip QR & photo when destination is Waste Rock (W)
+    const isWaste = destination === 'W';
     const fields = [
       [person, '录入人员', 'Operator'], [location, '作业平台', 'Location'], [blasting, '爆堆编号', 'Blasting Area'],
       [shovel, '挖机编号', 'Shovel'], [vehicleNo, '车辆编号', 'Vehicle No.'], [vehicleType, '车辆型号', 'Vehicle Type'],
       [formation, '地层', 'Formation'], [grade, '矿石品级', 'Grade'], [hardness, '硬度', 'Hardness'],
-      [mineralType, '矿石类型', 'Mineral Type'], [destination, '矿岩去向', 'Destination'], [qrCode, '矿牌', 'Tag (QR)'], [photo, '车辆照片', 'Vehicle Photo']
+      [mineralType, '矿石类型', 'Mineral Type'], [destination, '矿岩去向', 'Destination']
     ];
+    if (!isWaste) {
+      fields.push([qrCode, '矿牌', 'Tag (QR)'], [photo, '车辆照片', 'Vehicle Photo']);
+    }
     for (const [val, zh, en] of fields) {
       if (!val) { Utils.toast('请填写: ' + zh + '<br><span class="en">Please fill: ' + en + '</span>', 'error'); return; }
     }
