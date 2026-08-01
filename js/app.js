@@ -9,6 +9,7 @@ const App = {
     deleteStore: null,
     deleteScreen: null,
     exportContext: null,
+    dataViewSource: null, // 'main' or 'screen' — tracks which data view to refresh after delete
     // Temporary form data
     openpit: { qrCode: '', photo: '' },
     stockpile: { qrCode: '', photo: '' },
@@ -26,6 +27,7 @@ const App = {
     this.bindModals();
     this.bindExportTab();
     this.bindBackupRestore();
+    this.bindMainDataManagement();
     this.registerSW();
     this.requestPersistentStorage();
     // Fill main screen date/shift
@@ -756,6 +758,7 @@ const App = {
 
   // ==================== Data View ====================
   async showDataView(storeKey, headers, title) {
+    this.state.dataViewSource = 'screen';
     const storeMap = {
       openpit: DB.STORES.openpit,
       stockpile: DB.STORES.stockpile,
@@ -803,7 +806,11 @@ const App = {
     document.getElementById('dataview-modal').classList.remove('hidden');
   },
 
-  showFullImage(src) {
+  showFullImage(srcOrIndex) {
+    const src = typeof srcOrIndex === 'number'
+      ? (App._tempImages || [])[srcOrIndex]
+      : srcOrIndex;
+    if (!src) return;
     const overlay = document.createElement('div');
     overlay.style.cssText = 'position:fixed;inset:0;z-index:10001;background:rgba(0,0,0,0.9);display:flex;align-items:center;justify-content:center;padding:20px;';
     overlay.onclick = () => overlay.remove();
@@ -824,20 +831,24 @@ const App = {
       };
       await DB.remove(storeMap[storeKey], id);
       Utils.toast('删除成功!<br><span class="en">Deleted!</span>', 'success');
-      // Refresh data view
-      const headersMap = {
-        openpit: this.getOpenPitHeaders(),
-        stockpile: this.getStockpileHeaders(),
-        breakdown: this.getBreakdownHeaders(),
-        parking: this.getParkingHeaders()
-      };
-      const titlesMap = {
-        openpit: '采坑数据查看 (Open-pit Data)',
-        stockpile: '堆场数据查看 (Stockpile Data)',
-        breakdown: '故障车辆数据查看 (Breakdown Data)',
-        parking: '押矿车辆数据查看 (Parking Data)'
-      };
-      this.showDataView(storeKey, headersMap[storeKey], titlesMap[storeKey]);
+      // Refresh the correct data view based on source
+      if (this.state.dataViewSource === 'main') {
+        this.loadMainDataView();
+      } else {
+        const headersMap = {
+          openpit: this.getOpenPitHeaders(),
+          stockpile: this.getStockpileHeaders(),
+          breakdown: this.getBreakdownHeaders(),
+          parking: this.getParkingHeaders()
+        };
+        const titlesMap = {
+          openpit: '采坑数据查看 (Open-pit Data)',
+          stockpile: '堆场数据查看 (Stockpile Data)',
+          breakdown: '故障车辆数据查看 (Breakdown Data)',
+          parking: '押矿车辆数据查看 (Parking Data)'
+        };
+        this.showDataView(storeKey, headersMap[storeKey], titlesMap[storeKey]);
+      }
     });
   },
 
@@ -1107,6 +1118,260 @@ const App = {
       ' / 故障' + (counts.breakdown || 0) +
       ' / 押矿' + (counts.parking || 0) + ')' +
       '<br><span class="en">Storage: ' + storageText + ' · ' + persistText + '</span>';
+  },
+
+  // ==================== Main Screen Data Management ====================
+  getHeadersByKey(key) {
+    const map = {
+      openpit: this.getOpenPitHeaders(),
+      stockpile: this.getStockpileHeaders(),
+      breakdown: this.getBreakdownHeaders(),
+      parking: this.getParkingHeaders()
+    };
+    return map[key] || [];
+  },
+
+  /**
+   * Render a data table as HTML string.
+   * Uses App._tempImages array for photo references to avoid
+   * very long base64 strings in onclick attributes.
+   */
+  renderDataTable(records, headers, storeKey) {
+    if (!records || records.length === 0) {
+      return '<p class="empty-msg">暂无数据 (No data)</p>';
+    }
+    App._tempImages = [];
+    let html = '<table class="data-table"><thead><tr>';
+    html += '<th>#</th>';
+    headers.forEach(h => { html += `<th>${h.label}</th>`; });
+    html += '<th>操作<br><span class="en">Action</span></th>';
+    html += '</tr></thead><tbody>';
+    records.forEach((r, i) => {
+      html += `<tr>`;
+      html += `<td>${i + 1}</td>`;
+      headers.forEach(h => {
+        let val = r[h.key];
+        if (h.key === 'photo' || h.key === 'breakdownPhoto' || h.key === 'newVehiclePhoto' || h.key === 'parkingPhoto') {
+          if (val) {
+            const imgIdx = App._tempImages.length;
+            App._tempImages.push(val);
+            html += `<td class="td-photo"><img src="${val}" onclick="App.showFullImage(${imgIdx})" alt="photo"></td>`;
+          } else {
+            html += `<td>-</td>`;
+          }
+        } else if (h.key === 'timestamp') {
+          html += `<td>${val ? new Date(val).toLocaleString('zh-CN') : ''}</td>`;
+        } else {
+          html += `<td>${Utils.escapeHtml(val)}</td>`;
+        }
+      });
+      html += `<td class="td-actions"><button class="btn-delete-row" onclick="App.deleteRecord('${storeKey}', ${r.id})">删除<br><span class="en">Del</span></button></td>`;
+      html += `</tr>`;
+    });
+    html += '</tbody></table>';
+    return html;
+  },
+
+  bindMainDataManagement() {
+    // ====== Data View ======
+    document.getElementById('btn-main-dataview').addEventListener('click', () => {
+      this.showMainDataView();
+    });
+    document.getElementById('main-dv-close').addEventListener('click', () => {
+      document.getElementById('main-dataview-modal').classList.add('hidden');
+    });
+    document.getElementById('main-dv-query').addEventListener('click', () => {
+      this.loadMainDataView();
+    });
+    document.getElementById('main-dv-category').addEventListener('change', () => {
+      this.loadMainDataView();
+    });
+    document.getElementById('main-dv-date').addEventListener('change', () => {
+      this.loadMainDataView();
+    });
+
+    // ====== Export ======
+    document.getElementById('btn-main-export').addEventListener('click', () => {
+      document.getElementById('main-export-modal').classList.remove('hidden');
+    });
+    document.getElementById('main-exp-close').addEventListener('click', () => {
+      document.getElementById('main-export-modal').classList.add('hidden');
+    });
+    document.getElementById('main-exp-excel').addEventListener('click', () => {
+      this.doMainExport('excel');
+    });
+    document.getElementById('main-exp-png').addEventListener('click', () => {
+      this.doMainExport('png');
+    });
+
+    // ====== Delete ======
+    document.getElementById('btn-main-delete').addEventListener('click', () => {
+      document.getElementById('main-delete-modal').classList.remove('hidden');
+    });
+    document.getElementById('main-del-close').addEventListener('click', () => {
+      document.getElementById('main-delete-modal').classList.add('hidden');
+    });
+    document.getElementById('main-del-single').addEventListener('click', () => {
+      document.getElementById('main-delete-modal').classList.add('hidden');
+      const category = document.getElementById('main-del-category').value;
+      if (category === 'all') {
+        Utils.toast('请选择具体类别<br><span class="en">Please select a specific category</span>', 'error');
+        return;
+      }
+      // Open main data view with delete buttons for the selected category
+      document.getElementById('main-dv-category').value = category;
+      document.getElementById('main-dv-date').value = '';
+      this.showMainDataView();
+    });
+    document.getElementById('main-del-category-all').addEventListener('click', () => {
+      document.getElementById('main-delete-modal').classList.add('hidden');
+      const category = document.getElementById('main-del-category').value;
+      if (category === 'all') {
+        Utils.toast('请选择具体类别<br><span class="en">Please select a specific category</span>', 'error');
+        return;
+      }
+      const labelMap = {
+        openpit: '采坑', stockpile: '堆场', breakdown: '故障车辆', parking: '押矿车辆'
+      };
+      this.showPasswordModal(async () => {
+        await DB.clear(DB.STORES[category]);
+        Utils.toast(labelMap[category] + '数据已删除!<br><span class="en">Category data deleted!</span>', 'success');
+        this.updateStorageInfo();
+      });
+    });
+    document.getElementById('main-del-all').addEventListener('click', () => {
+      document.getElementById('main-delete-modal').classList.add('hidden');
+      this.showPasswordModal(async () => {
+        await DB.clear(DB.STORES.openpit);
+        await DB.clear(DB.STORES.stockpile);
+        await DB.clear(DB.STORES.breakdown);
+        await DB.clear(DB.STORES.parking);
+        Utils.toast('所有数据已删除!<br><span class="en">All data deleted!</span>', 'success');
+        this.updateStorageInfo();
+      });
+    });
+  },
+
+  showMainDataView() {
+    this.state.dataViewSource = 'main';
+    document.getElementById('main-dataview-modal').classList.remove('hidden');
+    this.loadMainDataView();
+  },
+
+  async loadMainDataView() {
+    const category = document.getElementById('main-dv-category').value;
+    const filterDate = document.getElementById('main-dv-date').value;
+    const content = document.getElementById('main-dv-content');
+    App._tempImages = [];
+
+    if (category === 'all') {
+      // Show latest 10 from each category
+      const cats = [
+        { key: 'openpit', label: '采坑 (Open-pit)' },
+        { key: 'stockpile', label: '堆场 (Stockpile)' },
+        { key: 'breakdown', label: '故障车辆 (Breakdown)' },
+        { key: 'parking', label: '押矿车辆 (Parking)' }
+      ];
+      let html = '';
+      for (const cat of cats) {
+        let records = await DB.getAll(DB.STORES[cat.key]);
+        if (filterDate) records = records.filter(r => (r.date || r.breakdownDate) === filterDate);
+        records.sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
+        const latest = records.slice(0, 10);
+        html += `<h4 class="section-title">${cat.label} <span class="count-badge">${records.length}</span></h4>`;
+        html += this.renderDataTable(latest, this.getHeadersByKey(cat.key), cat.key);
+        html += '<hr class="section-divider">';
+      }
+      content.innerHTML = html || '<p class="empty-msg">暂无数据 (No data)</p>';
+    } else {
+      let records = await DB.getAll(DB.STORES[category]);
+      if (filterDate) records = records.filter(r => (r.date || r.breakdownDate) === filterDate);
+      records.sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
+      content.innerHTML = this.renderDataTable(records, this.getHeadersByKey(category), category);
+    }
+  },
+
+  async doMainExport(type) {
+    const category = document.getElementById('main-exp-category').value;
+    const filterDate = document.getElementById('main-exp-date').value;
+    const filterShift = document.getElementById('main-exp-shift').value;
+
+    const labelMap = {
+      openpit: 'Open-pit', stockpile: 'Stockpile', breakdown: 'Breakdown', parking: 'Parking'
+    };
+    const titleMap = {
+      openpit: '采坑数据 (Open-pit Data)', stockpile: '堆场数据 (Stockpile Data)',
+      breakdown: '故障车辆数据 (Breakdown Data)', parking: '押矿车辆数据 (Parking Data)'
+    };
+
+    // All categories → multi-sheet Excel
+    if (category === 'all') {
+      const cats = ['openpit', 'stockpile', 'breakdown', 'parking'];
+      const sheets = [];
+      let totalRecords = 0;
+      for (const key of cats) {
+        let records = await DB.getAll(DB.STORES[key]);
+        if (filterDate) records = records.filter(r => (r.date || r.breakdownDate) === filterDate);
+        if (filterShift) records = records.filter(r => (r.shift || r.breakdownShift) === filterShift);
+        records.sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
+        totalRecords += records.length;
+        sheets.push({ name: labelMap[key], records, headers: this.getHeadersByKey(key) });
+      }
+      if (totalRecords === 0) {
+        Utils.toast('没有数据可导出<br><span class="en">No data to export</span>', 'error');
+        return;
+      }
+      if (type === 'excel') {
+        Exporter.toExcelMultiSheet(sheets, 'All_' + Utils.getTimestampStr());
+      } else {
+        // PNG: merge all into one table
+        const allRecords = [];
+        const allHeaders = [
+          { key: 'category', label: 'Category' },
+          { key: 'date', label: 'Date' },
+          { key: 'shift', label: 'Shift' },
+          { key: 'qrCode', label: 'Tag (QR)' },
+          { key: 'vehicleNo', label: 'Vehicle No.' },
+          { key: 'timestamp', label: 'Timestamp' }
+        ];
+        sheets.forEach(s => {
+          s.records.forEach(r => {
+            allRecords.push({
+              category: s.name,
+              date: r.date || r.breakdownDate || '',
+              shift: r.shift || r.breakdownShift || '',
+              qrCode: r.qrCode || '',
+              vehicleNo: r.vehicleNo || r.breakdownVehicleNo || r.parkingVehicleNo || '',
+              timestamp: r.timestamp || ''
+            });
+          });
+        });
+        Exporter.toPNG(allRecords, allHeaders, 'All_' + Utils.getTimestampStr(), '全部数据 (All Data)');
+      }
+      Utils.toast('导出成功! 共' + totalRecords + '条<br><span class="en">Exported! ' + totalRecords + ' records</span>', 'success');
+      return;
+    }
+
+    // Single category export
+    let records = await DB.getAll(DB.STORES[category]);
+    if (filterDate) records = records.filter(r => (r.date || r.breakdownDate) === filterDate);
+    if (filterShift) records = records.filter(r => (r.shift || r.breakdownShift) === filterShift);
+    records.sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
+
+    if (records.length === 0) {
+      Utils.toast('没有数据可导出<br><span class="en">No data to export</span>', 'error');
+      return;
+    }
+
+    const headers = this.getHeadersByKey(category);
+    const filename = labelMap[category] + '_' + Utils.getTimestampStr();
+
+    if (type === 'excel') {
+      Exporter.toExcel(records, headers, filename);
+    } else {
+      Exporter.toPNG(records, headers, filename, titleMap[category]);
+    }
+    Utils.toast('导出成功! 共' + records.length + '条<br><span class="en">Exported! ' + records.length + ' records</span>', 'success');
   },
 
   // ==================== Service Worker ====================
