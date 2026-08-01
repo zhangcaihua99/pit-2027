@@ -51,6 +51,16 @@
     <button class="btn btn-primary btn-full" id="btn-enter-site">进入<br><span class="en">(Enter)</span></button>
   </div>
 
+  <!-- ====== Data Management ====== -->
+  <div class="card">
+    <h3>数据管理<br><span class="en">Data Management</span></h3>
+    <div class="btn-group">
+      <button class="btn btn-info" id="btn-main-dataview">数据查看<br><span class="en">(Data View)</span></button>
+      <button class="btn btn-success" id="btn-main-export">数据导出<br><span class="en">(Export Data)</span></button>
+      <button class="btn btn-danger" id="btn-main-delete">删除数据<br><span class="en">(Delete Data)</span></button>
+    </div>
+  </div>
+
   <!-- ====== Backup & Restore ====== -->
   <div class="card">
     <h3>数据备份与恢复<br><span class="en">Data Backup & Restore</span></h3>
@@ -506,6 +516,93 @@
     </div>
     <button class="btn btn-success btn-full" id="export-excel-btn">导出 Excel</button>
     <button class="btn btn-info btn-full" id="export-png-btn">导出 PNG 图片</button>
+  </div>
+</div>
+
+<!-- ====== Main Data View Modal ====== -->
+<div id="main-dataview-modal" class="modal hidden">
+  <div class="modal-content modal-lg">
+    <div class="modal-header">
+      <h2>数据查看<br><span class="en">(Data View)</span></h2>
+      <button class="btn-icon btn-close" id="main-dv-close">&#10005;</button>
+    </div>
+    <div class="form-row">
+      <div class="form-group">
+        <label>数据类别 (Category)</label>
+        <select id="main-dv-category">
+          <option value="openpit">采坑 (Open-pit)</option>
+          <option value="stockpile">堆场 (Stockpile)</option>
+          <option value="breakdown">故障车辆 (Breakdown)</option>
+          <option value="parking">押矿车辆 (Parking)</option>
+          <option value="all">全部最新 (All Latest)</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label>日期筛选 (Date Filter)</label>
+        <input type="date" id="main-dv-date">
+      </div>
+    </div>
+    <button class="btn btn-primary btn-full" id="main-dv-query" style="margin-bottom:12px;">查询<br><span class="en">(Query)</span></button>
+    <div id="main-dv-content" class="dataview-content"></div>
+  </div>
+</div>
+
+<!-- ====== Main Export Modal ====== -->
+<div id="main-export-modal" class="modal hidden">
+  <div class="modal-content">
+    <div class="modal-header">
+      <h2>数据导出<br><span class="en">(Export Data)</span></h2>
+      <button class="btn-icon btn-close" id="main-exp-close">&#10005;</button>
+    </div>
+    <div class="form-group">
+      <label>数据类别 (Category)</label>
+      <select id="main-exp-category">
+        <option value="openpit">采坑 (Open-pit)</option>
+        <option value="stockpile">堆场 (Stockpile)</option>
+        <option value="breakdown">故障车辆 (Breakdown)</option>
+        <option value="parking">押矿车辆 (Parking)</option>
+        <option value="all">全部 - 多工作表 (All - Multi-sheet)</option>
+      </select>
+    </div>
+    <div class="form-row">
+      <div class="form-group">
+        <label>日期筛选 (Date Filter)</label>
+        <input type="date" id="main-exp-date">
+      </div>
+      <div class="form-group">
+        <label>班次筛选 (Shift Filter)</label>
+        <select id="main-exp-shift">
+          <option value="">全部 (All)</option>
+          <option value="Day Shift">白班 (Day Shift)</option>
+          <option value="Night Shift">夜班 (Night Shift)</option>
+        </select>
+      </div>
+    </div>
+    <button class="btn btn-success btn-full" id="main-exp-excel">导出 Excel</button>
+    <button class="btn btn-info btn-full" id="main-exp-png">导出 PNG 图片<br><span class="en">(Export PNG)</span></button>
+  </div>
+</div>
+
+<!-- ====== Main Delete Modal ====== -->
+<div id="main-delete-modal" class="modal hidden">
+  <div class="modal-content modal-sm">
+    <div class="modal-header">
+      <h2>删除数据<br><span class="en">(Delete Data)</span></h2>
+      <button class="btn-icon btn-close" id="main-del-close">&#10005;</button>
+    </div>
+    <div class="form-group">
+      <label>数据类别 (Category)</label>
+      <select id="main-del-category">
+        <option value="openpit">采坑 (Open-pit)</option>
+        <option value="stockpile">堆场 (Stockpile)</option>
+        <option value="breakdown">故障车辆 (Breakdown)</option>
+        <option value="parking">押矿车辆 (Parking)</option>
+        <option value="all">全部数据 (All Data)</option>
+      </select>
+    </div>
+    <button class="btn btn-danger btn-full" id="main-del-single">删除单条数据<br><span class="en">(Delete Single Record)</span></button>
+    <button class="btn btn-danger btn-full" id="main-del-category-all">删除该类全部<br><span class="en">(Delete This Category)</span></button>
+    <button class="btn btn-danger btn-full" id="main-del-all">删除所有数据<br><span class="en">(Delete ALL Data)</span></button>
   </div>
 </div>
 
