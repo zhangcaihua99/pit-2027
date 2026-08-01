@@ -521,6 +521,34 @@ input[readonly] {
   opacity: 0.7;
 }
 
+/* ====== Main Data View Sections ====== */
+.section-title {
+  color: var(--primary);
+  font-size: 15px;
+  font-weight: 700;
+  margin: 16px 0 8px 0;
+  padding: 6px 10px;
+  background: var(--primary-light);
+  border-radius: 4px;
+}
+
+.count-badge {
+  display: inline-block;
+  background: var(--primary);
+  color: #fff;
+  font-size: 12px;
+  font-weight: 600;
+  padding: 2px 8px;
+  border-radius: 10px;
+  margin-left: 4px;
+}
+
+.section-divider {
+  border: none;
+  border-top: 2px dashed var(--border);
+  margin: 16px 0;
+}
+
 /* ====== Utility ====== */
 .hidden {
   display: none !important;
