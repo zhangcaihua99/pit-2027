@@ -28,6 +28,40 @@ const Exporter = {
   },
 
   /**
+   * Export multiple data sets to a single Excel workbook with multiple sheets.
+   * @param {Array} sheets - [{ name, records, headers }] each sheet definition
+   * @param {string} filename - output filename (without extension)
+   */
+  toExcelMultiSheet(sheets, filename) {
+    const wb = XLSX.utils.book_new();
+    sheets.forEach(sheet => {
+      const data = sheet.records.map(r => {
+        const row = {};
+        sheet.headers.forEach(h => {
+          let val = r[h.key];
+          if (h.key === 'photo' || h.key === 'breakdownPhoto' || h.key === 'newVehiclePhoto' || h.key === 'parkingPhoto' || h.key === 'vehiclePhoto') {
+            val = val ? '[Photo]' : '';
+          }
+          row[h.label] = val != null ? val : '';
+        });
+        return row;
+      });
+      // Sheet name max 31 chars (Excel limit)
+      const sheetName = (sheet.name || 'Sheet').substring(0, 31);
+      // If no data, add a single row indicating empty
+      const wsData = data.length > 0 ? data : [{ 'Info': 'No data' }];
+      const ws = XLSX.utils.json_to_sheet(wsData);
+      XLSX.utils.book_append_sheet(wb, ws, sheetName);
+    });
+    // Ensure at least one sheet exists
+    if (wb.SheetNames.length === 0) {
+      const ws = XLSX.utils.json_to_sheet([{ 'Info': 'No data' }]);
+      XLSX.utils.book_append_sheet(wb, ws, 'Empty');
+    }
+    XLSX.writeFile(wb, filename + '.xlsx');
+  },
+
+  /**
    * Export data to PNG image
    * @param {Array} records - data records
    * @param {Array} headers - [{key, label}] column definitions
