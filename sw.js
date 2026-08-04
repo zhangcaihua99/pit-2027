@@ -4,7 +4,7 @@
  *            so the browser detects a new version and shows the
  *            "检测到新版本" banner to users.
  */
-const CACHE_VERSION = 'v1.3.1';
+const CACHE_VERSION = 'v1.3.2';
 const CACHE_NAME = 'mining-mgmt-' + CACHE_VERSION;
 
 const ASSETS = [
@@ -46,27 +46,43 @@ self.addEventListener('activate', event => {
   );
 });
 
-// Fetch - cache-first strategy
+// Fetch - network-first for navigation, stale-while-revalidate for assets
 self.addEventListener('fetch', event => {
   // Skip non-GET requests
   if (event.request.method !== 'GET') return;
 
-  event.respondWith(
-    caches.match(event.request).then(cached => {
-      if (cached) return cached;
-      return fetch(event.request).then(response => {
-        // Cache new resources (same-origin only)
-        if (response && response.status === 200 && response.url.startsWith(self.location.origin)) {
+  // Network-first for navigation requests (HTML pages)
+  // This ensures the browser always gets the latest HTML on page load,
+  // which references the newest sw.js and triggers SW update detection.
+  if (event.request.mode === 'navigate') {
+    event.respondWith(
+      fetch(event.request).then(response => {
+        if (response && response.status === 200) {
           const clone = response.clone();
           caches.open(CACHE_NAME).then(cache => cache.put(event.request, clone));
         }
         return response;
       }).catch(() => {
-        // Offline fallback
-        if (event.request.destination === 'document') {
-          return caches.match('./index.html');
+        return caches.match(event.request).then(cached => {
+          return cached || caches.match('./index.html');
+        });
+      })
+    );
+    return;
+  }
+
+  // Stale-while-revalidate for other assets (JS, CSS, images, etc.)
+  // Serve from cache immediately, but also fetch fresh copy in background
+  event.respondWith(
+    caches.match(event.request).then(cached => {
+      const fetchPromise = fetch(event.request).then(response => {
+        if (response && response.status === 200 && response.url.startsWith(self.location.origin)) {
+          const clone = response.clone();
+          caches.open(CACHE_NAME).then(cache => cache.put(event.request, clone));
         }
-      });
+        return response;
+      }).catch(() => cached);
+      return cached || fetchPromise;
     })
   );
 });
