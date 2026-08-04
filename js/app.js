@@ -13,6 +13,7 @@ const App = {
     // Temporary form data
     openpit: { qrCode: '', photo: '' },
     stockpile: { qrCode: '', photo: '' },
+    transfer: { qrCode: '', photo: '' },
     breakdown: { qrCode: '', breakdownPhoto: '', newVehiclePhoto: '' },
     parking: { qrCode: '', parkingPhoto: '' }
   },
@@ -22,6 +23,7 @@ const App = {
     this.bindMainScreen();
     this.bindOpenPit();
     this.bindStockpile();
+    this.bindTransfer();
     this.bindBreakdown();
     this.bindParking();
     this.bindModals();
@@ -75,6 +77,7 @@ const App = {
     if (name === 'main') this.refreshMainScreen();
     if (name === 'openpit') this.initOpenPitScreen();
     if (name === 'stockpile') this.initStockpileScreen();
+    if (name === 'transfer') this.initTransferScreen();
     if (name === 'breakdown') this.initBreakdownScreen();
   },
 
@@ -361,6 +364,110 @@ const App = {
     preview.src = '';
     this.state.stockpile.qrCode = '';
     this.state.stockpile.photo = '';
+
+    Utils.toast('数据上传成功!<br><span class="en">Data submitted!</span>', 'success');
+  },
+
+  // ==================== Transfer Screen ====================
+  async initTransferScreen() {
+    const d = await Utils.loadDefaults('transfer');
+    document.getElementById('tr-vehicle').value = '';
+    if (d.origin) document.getElementById('tr-origin').value = d.origin;
+    if (d.destination) document.getElementById('tr-destination').value = d.destination;
+    if (d.mineralType) document.getElementById('tr-mineral-type').value = d.mineralType;
+    document.getElementById('tr-qr').value = '';
+    const preview = document.getElementById('tr-photo-preview');
+    preview.classList.add('hidden');
+    preview.src = '';
+    this.state.transfer.qrCode = '';
+    this.state.transfer.photo = '';
+  },
+
+  bindTransfer() {
+    // Auto-trigger QR scan on mineral type change
+    document.getElementById('tr-mineral-type').addEventListener('change', () => {
+      const mt = document.getElementById('tr-mineral-type').value;
+      if (mt) {
+        this.startQRScan('transfer');
+      }
+    });
+
+    document.getElementById('tr-scan-qr').addEventListener('click', () => {
+      this.startQRScan('transfer');
+    });
+
+    document.getElementById('tr-take-photo').addEventListener('click', () => {
+      this.startCamera('transfer_photo');
+    });
+
+    document.getElementById('tr-submit').addEventListener('click', () => this.submitTransfer());
+
+    document.getElementById('tr-data-view').addEventListener('click', () => {
+      this.showDataView('transfer', this.getTransferHeaders(), '二次转运数据查看 (Secondary Transfer Data)');
+    });
+
+    document.getElementById('tr-export').addEventListener('click', () => {
+      this.state.exportContext = 'transfer';
+      this.showExportModal();
+    });
+
+    document.getElementById('tr-delete').addEventListener('click', () => {
+      this.state.deleteStore = DB.STORES.transfer;
+      this.state.deleteScreen = 'transfer';
+      this.showDeleteOptions();
+    });
+  },
+
+  getTransferHeaders() {
+    return [
+      { key: 'date', label: 'Date' },
+      { key: 'shift', label: 'Shift' },
+      { key: 'person', label: 'Person' },
+      { key: 'origin', label: 'Origin' },
+      { key: 'destination', label: 'Destination' },
+      { key: 'vehicleNo', label: 'Vehicle No.' },
+      { key: 'mineralType', label: 'Mineral Type' },
+      { key: 'qrCode', label: 'Tag (QR)' },
+      { key: 'photo', label: 'Photo' },
+      { key: 'timestamp', label: 'Timestamp' }
+    ];
+  },
+
+  async submitTransfer() {
+    const person = document.getElementById('person').value.trim();
+    const origin = document.getElementById('tr-origin').value.trim();
+    const destination = document.getElementById('tr-destination').value.trim();
+    const vehicleNo = document.getElementById('tr-vehicle').value.trim();
+    const mineralType = document.getElementById('tr-mineral-type').value;
+    const qrCode = this.state.transfer.qrCode || document.getElementById('tr-qr').value.trim();
+    const photo = this.state.transfer.photo;
+
+    const fields = [
+      [person, '录入人员', 'Operator'], [origin, '出发地', 'Origin'], [destination, '目的地', 'Destination'],
+      [vehicleNo, '车辆编号', 'Vehicle No.'], [mineralType, '矿石类型', 'Mineral Type'],
+      [qrCode, '矿牌', 'Tag (QR)'], [photo, '车辆照片', 'Vehicle Photo']
+    ];
+    for (const [val, zh, en] of fields) {
+      if (!val) { Utils.toast('请填写: ' + zh + '<br><span class="en">Please fill: ' + en + '</span>', 'error'); return; }
+    }
+
+    const record = {
+      date: Utils.getTodayStr(),
+      shift: Utils.getCurrentShift(),
+      person, origin, destination, vehicleNo, mineralType, qrCode, photo,
+      timestamp: new Date().toISOString()
+    };
+
+    await DB.add(DB.STORES.transfer, record);
+    await Utils.saveDefaults('transfer', { origin, destination, mineralType });
+
+    document.getElementById('tr-vehicle').value = '';
+    document.getElementById('tr-qr').value = '';
+    const preview = document.getElementById('tr-photo-preview');
+    preview.classList.add('hidden');
+    preview.src = '';
+    this.state.transfer.qrCode = '';
+    this.state.transfer.photo = '';
 
     Utils.toast('数据上传成功!<br><span class="en">Data submitted!</span>', 'success');
   },
@@ -666,6 +773,7 @@ const App = {
     const qrInputMap = {
       openpit: 'op-qr',
       stockpile: 'sp-qr',
+      transfer: 'tr-qr',
       breakdown: 'bd-qr',
       parking: 'pk-qr'
     };
@@ -686,11 +794,13 @@ const App = {
 
     Utils.toast('扫描成功!<br><span class="en">Scan successful!</span>', 'success');
 
-    // For openpit and stockpile, auto-open camera after QR scan
+    // For openpit, stockpile, and transfer, auto-open camera after QR scan
     if (ctx === 'openpit') {
       setTimeout(() => this.startCamera('openpit_photo'), 300);
     } else if (ctx === 'stockpile') {
       setTimeout(() => this.startCamera('stockpile_photo'), 300);
+    } else if (ctx === 'transfer') {
+      setTimeout(() => this.startCamera('transfer_photo'), 300);
     }
   },
 
@@ -702,7 +812,7 @@ const App = {
     const isDup = await DB.isQRRegisteredRecently(value, ctx);
     if (isDup) {
       Utils.toast('重复扫描二维码<br><span class="en">Duplicate Scan Detected</span>', 'error');
-      const qrInputMap = { openpit: 'op-qr', stockpile: 'sp-qr', breakdown: 'bd-qr', parking: 'pk-qr' };
+      const qrInputMap = { openpit: 'op-qr', stockpile: 'sp-qr', transfer: 'tr-qr', breakdown: 'bd-qr', parking: 'pk-qr' };
       const inputId = qrInputMap[ctx];
       if (inputId) document.getElementById(inputId).value = '';
       this.state[ctx].qrCode = '';
@@ -718,6 +828,7 @@ const App = {
     const titles = {
       'openpit_photo': '车辆照片 (Vehicle Photo)',
       'stockpile_photo': '车辆照片 (Vehicle Photo)',
+      'transfer_photo': '车辆照片 (Vehicle Photo)',
       'breakdown_breakdownPhoto': '故障车照片 (Breakdown Vehicle Photo)',
       'breakdown_newVehiclePhoto': '新车照片 (New Vehicle Photo)',
       'parking_parkingPhoto': '押矿车辆照片 (Parking Vehicle Photo)'
@@ -743,6 +854,7 @@ const App = {
     const previewMap = {
       'openpit_photo': 'op-photo-preview',
       'stockpile_photo': 'sp-photo-preview',
+      'transfer_photo': 'tr-photo-preview',
       'breakdown_breakdownPhoto': 'bd-photo-preview',
       'breakdown_newVehiclePhoto': 'bd-new-photo-preview',
       'parking_parkingPhoto': 'pk-photo-preview'
@@ -762,6 +874,7 @@ const App = {
     const storeMap = {
       openpit: DB.STORES.openpit,
       stockpile: DB.STORES.stockpile,
+      transfer: DB.STORES.transfer,
       breakdown: DB.STORES.breakdown,
       parking: DB.STORES.parking
     };
@@ -826,6 +939,7 @@ const App = {
       const storeMap = {
         openpit: DB.STORES.openpit,
         stockpile: DB.STORES.stockpile,
+        transfer: DB.STORES.transfer,
         breakdown: DB.STORES.breakdown,
         parking: DB.STORES.parking
       };
@@ -838,12 +952,14 @@ const App = {
         const headersMap = {
           openpit: this.getOpenPitHeaders(),
           stockpile: this.getStockpileHeaders(),
+          transfer: this.getTransferHeaders(),
           breakdown: this.getBreakdownHeaders(),
           parking: this.getParkingHeaders()
         };
         const titlesMap = {
           openpit: '采坑数据查看 (Open-pit Data)',
           stockpile: '堆场数据查看 (Stockpile Data)',
+          transfer: '二次转运数据查看 (Secondary Transfer Data)',
           breakdown: '故障车辆数据查看 (Breakdown Data)',
           parking: '押矿车辆数据查看 (Parking Data)'
         };
@@ -869,19 +985,23 @@ const App = {
 
     const storeMap = {
       openpit: DB.STORES.openpit,
-      stockpile: DB.STORES.stockpile
+      stockpile: DB.STORES.stockpile,
+      transfer: DB.STORES.transfer
     };
     const headersMap = {
       openpit: this.getOpenPitHeaders(),
-      stockpile: this.getStockpileHeaders()
+      stockpile: this.getStockpileHeaders(),
+      transfer: this.getTransferHeaders()
     };
     const labelMap = {
       openpit: 'Open-pit',
-      stockpile: 'Stockpile'
+      stockpile: 'Stockpile',
+      transfer: 'Transfer'
     };
     const titleMap = {
       openpit: '采坑数据 (Open-pit Data)',
-      stockpile: '堆场数据 (Stockpile Data)'
+      stockpile: '堆场数据 (Stockpile Data)',
+      transfer: '二次转运数据 (Secondary Transfer Data)'
     };
 
     let records = await DB.getAll(storeMap[ctx]);
@@ -952,12 +1072,14 @@ const App = {
       const headersMap = {
         openpit: this.getOpenPitHeaders(),
         stockpile: this.getStockpileHeaders(),
+        transfer: this.getTransferHeaders(),
         breakdown: this.getBreakdownHeaders(),
         parking: this.getParkingHeaders()
       };
       const titlesMap = {
         openpit: '采坑数据查看 (点击删除)',
         stockpile: '堆场数据查看 (点击删除)',
+        transfer: '二次转运数据查看 (点击删除)',
         breakdown: '故障车辆数据查看 (点击删除)',
         parking: '押矿车辆数据查看 (点击删除)'
       };
@@ -1115,6 +1237,7 @@ const App = {
       '数据记录: ' + total + ' 条 (' +
       '采坑' + (counts.openpit || 0) +
       ' / 堆场' + (counts.stockpile || 0) +
+      ' / 转运' + (counts.transfer || 0) +
       ' / 故障' + (counts.breakdown || 0) +
       ' / 押矿' + (counts.parking || 0) + ')' +
       '<br><span class="en">Storage: ' + storageText + ' · ' + persistText + '</span>';
@@ -1125,6 +1248,7 @@ const App = {
     const map = {
       openpit: this.getOpenPitHeaders(),
       stockpile: this.getStockpileHeaders(),
+      transfer: this.getTransferHeaders(),
       breakdown: this.getBreakdownHeaders(),
       parking: this.getParkingHeaders()
     };
@@ -1231,7 +1355,7 @@ const App = {
         return;
       }
       const labelMap = {
-        openpit: '采坑', stockpile: '堆场', breakdown: '故障车辆', parking: '押矿车辆'
+        openpit: '采坑', stockpile: '堆场', transfer: '二次转运', breakdown: '故障车辆', parking: '押矿车辆'
       };
       this.showPasswordModal(async () => {
         await DB.clear(DB.STORES[category]);
@@ -1244,6 +1368,7 @@ const App = {
       this.showPasswordModal(async () => {
         await DB.clear(DB.STORES.openpit);
         await DB.clear(DB.STORES.stockpile);
+        await DB.clear(DB.STORES.transfer);
         await DB.clear(DB.STORES.breakdown);
         await DB.clear(DB.STORES.parking);
         Utils.toast('所有数据已删除!<br><span class="en">All data deleted!</span>', 'success');
@@ -1269,6 +1394,7 @@ const App = {
       const cats = [
         { key: 'openpit', label: '采坑 (Open-pit)' },
         { key: 'stockpile', label: '堆场 (Stockpile)' },
+        { key: 'transfer', label: '二次转运 (Secondary Transfer)' },
         { key: 'breakdown', label: '故障车辆 (Breakdown)' },
         { key: 'parking', label: '押矿车辆 (Parking)' }
       ];
@@ -1297,16 +1423,17 @@ const App = {
     const filterShift = document.getElementById('main-exp-shift').value;
 
     const labelMap = {
-      openpit: 'Open-pit', stockpile: 'Stockpile', breakdown: 'Breakdown', parking: 'Parking'
+      openpit: 'Open-pit', stockpile: 'Stockpile', transfer: 'Transfer', breakdown: 'Breakdown', parking: 'Parking'
     };
     const titleMap = {
       openpit: '采坑数据 (Open-pit Data)', stockpile: '堆场数据 (Stockpile Data)',
+      transfer: '二次转运数据 (Secondary Transfer Data)',
       breakdown: '故障车辆数据 (Breakdown Data)', parking: '押矿车辆数据 (Parking Data)'
     };
 
     // All categories → multi-sheet Excel
     if (category === 'all') {
-      const cats = ['openpit', 'stockpile', 'breakdown', 'parking'];
+      const cats = ['openpit', 'stockpile', 'transfer', 'breakdown', 'parking'];
       const sheets = [];
       let totalRecords = 0;
       for (const key of cats) {
