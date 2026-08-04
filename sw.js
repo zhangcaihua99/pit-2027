@@ -4,7 +4,7 @@
  *            so the browser detects a new version and shows the
  *            "检测到新版本" banner to users.
  */
-const CACHE_VERSION = 'v1.2.1';
+const CACHE_VERSION = 'v1.3.0';
 const CACHE_NAME = 'mining-mgmt-' + CACHE_VERSION;
 
 const ASSETS = [
