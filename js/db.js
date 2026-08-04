@@ -3,12 +3,13 @@
  */
 const DB = (function() {
   const DB_NAME = 'MiningManagementDB';
-  const DB_VERSION = 1;
+  const DB_VERSION = 2;
   const STORES = {
     openpit: 'openpit',
     stockpile: 'stockpile',
     breakdown: 'breakdown',
     parking: 'parking',
+    transfer: 'transfer',
     settings: 'settings'
   };
   let dbInstance = null;
@@ -32,6 +33,9 @@ const DB = (function() {
         }
         if (!db.objectStoreNames.contains(STORES.parking)) {
           db.createObjectStore(STORES.parking, { keyPath: 'id', autoIncrement: true });
+        }
+        if (!db.objectStoreNames.contains(STORES.transfer)) {
+          db.createObjectStore(STORES.transfer, { keyPath: 'id', autoIncrement: true });
         }
         if (!db.objectStoreNames.contains(STORES.settings)) {
           db.createObjectStore(STORES.settings, { keyPath: 'key' });
