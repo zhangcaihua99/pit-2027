@@ -173,6 +173,14 @@ input[readonly] {
   color: var(--text-secondary);
 }
 
+input::placeholder,
+select option:first-child,
+textarea::placeholder {
+  font-size: 12px;
+  color: var(--text-light);
+  opacity: 0.85;
+}
+
 /* ====== QR Display ====== */
 .qr-display {
   display: flex;
