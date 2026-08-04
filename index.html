@@ -45,6 +45,7 @@
         <option value="">-- 请选择 / Please Select --</option>
         <option value="openpit">采坑 (Open-pit)</option>
         <option value="stockpile">堆场 (Stockpile)</option>
+        <option value="transfer">二次转运矿石 (Secondary Ore Transfer)</option>
         <option value="breakdown">故障和押矿车辆 (Breakdown/Parking)</option>
       </select>
     </div>
@@ -261,6 +262,71 @@
       <button class="btn btn-info" id="sp-data-view">数据查看<br><span class="en">(Data View)</span></button>
       <button class="btn btn-success" id="sp-export">导出数据<br><span class="en">(Export Data)</span></button>
       <button class="btn btn-danger" id="sp-delete">删除数据<br><span class="en">(Delete Data)</span></button>
+    </div>
+  </div>
+</div>
+
+<!-- ====== Transfer Screen ====== -->
+<div id="screen-transfer" class="screen">
+  <div class="header">
+    <button class="btn-icon btn-back" data-back="main">&#8592;</button>
+    <h1>二次转运矿石 (Secondary Ore Transfer)</h1>
+  </div>
+  <div class="card">
+    <div class="form-row">
+      <div class="form-group">
+        <label>出发地 (Origin)</label>
+        <input type="text" id="tr-origin" placeholder="输入出发地">
+      </div>
+      <div class="form-group">
+        <label>目的地 (Destination)</label>
+        <input type="text" id="tr-destination" placeholder="输入目的地">
+      </div>
+    </div>
+    <div class="form-row">
+      <div class="form-group">
+        <label>车辆编号 (Vehicle No.)</label>
+        <input type="text" id="tr-vehicle" placeholder="必填，提交后清空">
+      </div>
+      <div class="form-group">
+        <label>矿石类型 (Mineral Type)</label>
+        <select id="tr-mineral-type">
+          <option value="">-- 选择 --</option>
+          <option value="F1">F1</option><option value="F2">F2</option>
+          <option value="F3">F3</option><option value="F3A">F3A</option>
+          <option value="F4">F4</option><option value="F5">F5</option>
+          <option value="L1">L1</option><option value="L2">L2</option>
+          <option value="L3">L3</option><option value="L4">L4</option>
+          <option value="L5">L5</option>
+          <option value="HL1">HL1</option><option value="HL2">HL2</option>
+          <option value="HL4">HL4</option><option value="HL5">HL5</option>
+          <option value="S1">S1</option><option value="S2">S2</option>
+          <option value="S3">S3</option>
+        </select>
+      </div>
+    </div>
+
+    <div class="form-group">
+      <label>矿牌 (QR Code)</label>
+      <div class="qr-display">
+        <input type="text" id="tr-qr" readonly placeholder="扫描后自动填入 / Auto-filled after scan">
+        <button class="btn btn-secondary btn-sm" id="tr-scan-qr">扫描<br><span class="en">(Scanning)</span></button>
+      </div>
+    </div>
+
+    <div class="form-group">
+      <label>车辆照片 (Vehicle Photo)</label>
+      <div class="photo-area">
+        <img id="tr-photo-preview" class="photo-preview hidden" alt="车辆照片">
+        <button class="btn btn-secondary btn-full" id="tr-take-photo">拍照<br><span class="en">(Camera)</span></button>
+      </div>
+    </div>
+
+    <button class="btn btn-primary btn-full" id="tr-submit">上传数据 (Submit Data)</button>
+    <div class="btn-group">
+      <button class="btn btn-info" id="tr-data-view">数据查看<br><span class="en">(Data View)</span></button>
+      <button class="btn btn-success" id="tr-export">导出数据<br><span class="en">(Export Data)</span></button>
+      <button class="btn btn-danger" id="tr-delete">删除数据<br><span class="en">(Delete Data)</span></button>
     </div>
   </div>
 </div>
@@ -532,6 +598,7 @@
         <select id="main-dv-category">
           <option value="openpit">采坑 (Open-pit)</option>
           <option value="stockpile">堆场 (Stockpile)</option>
+          <option value="transfer">二次转运 (Secondary Transfer)</option>
           <option value="breakdown">故障车辆 (Breakdown)</option>
           <option value="parking">押矿车辆 (Parking)</option>
           <option value="all">全部最新 (All Latest)</option>
@@ -559,6 +626,7 @@
       <select id="main-exp-category">
         <option value="openpit">采坑 (Open-pit)</option>
         <option value="stockpile">堆场 (Stockpile)</option>
+        <option value="transfer">二次转运 (Secondary Transfer)</option>
         <option value="breakdown">故障车辆 (Breakdown)</option>
         <option value="parking">押矿车辆 (Parking)</option>
         <option value="all">全部 - 多工作表 (All - Multi-sheet)</option>
@@ -595,6 +663,7 @@
       <select id="main-del-category">
         <option value="openpit">采坑 (Open-pit)</option>
         <option value="stockpile">堆场 (Stockpile)</option>
+        <option value="transfer">二次转运 (Secondary Transfer)</option>
         <option value="breakdown">故障车辆 (Breakdown)</option>
         <option value="parking">押矿车辆 (Parking)</option>
         <option value="all">全部数据 (All Data)</option>
