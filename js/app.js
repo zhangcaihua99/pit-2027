@@ -30,6 +30,7 @@ const App = {
     this.bindExportTab();
     this.bindBackupRestore();
     this.bindMainDataManagement();
+    this.bindUpdateCheck();
     this.registerSW();
     this.requestPersistentStorage();
     // Fill main screen date/shift
@@ -1501,12 +1502,22 @@ const App = {
     Utils.toast('导出成功! 共' + records.length + '条<br><span class="en">Exported! ' + records.length + ' records</span>', 'success');
   },
 
+  // ==================== Update Check ====================
+  bindUpdateCheck() {
+    document.getElementById('btn-check-update').addEventListener('click', () => {
+      this.checkForUpdates();
+    });
+  },
+
   // ==================== Service Worker ====================
   registerSW() {
     if ('serviceWorker' in navigator) {
       window.addEventListener('load', () => {
         navigator.serviceWorker.register('sw.js').then(reg => {
-          // Check for updates
+          // Force check for updates on every page load
+          reg.update();
+
+          // If a new SW is already waiting, show banner immediately
           if (reg.waiting) {
             App._waitingSW = reg.waiting;
             document.getElementById('update-banner').classList.remove('hidden');
@@ -1522,6 +1533,11 @@ const App = {
               });
             }
           });
+
+          // Periodic check for updates every 5 minutes
+          setInterval(() => {
+            reg.update();
+          }, 5 * 60 * 1000);
         }).catch(err => {
           console.error('SW registration failed:', err);
         });
@@ -1534,6 +1550,32 @@ const App = {
           window.location.reload();
         });
       });
+    }
+  },
+
+  // Manual update check - triggered by user clicking "检查更新" button
+  async checkForUpdates() {
+    if (!('serviceWorker' in navigator)) {
+      Utils.toast('不支持离线功能<br><span class="en">Offline not supported</span>', 'error');
+      return;
+    }
+    try {
+      const reg = await navigator.serviceWorker.getRegistration();
+      if (!reg) {
+        window.location.reload();
+        return;
+      }
+      await reg.update();
+      if (reg.waiting) {
+        App._waitingSW = reg.waiting;
+        document.getElementById('update-banner').classList.remove('hidden');
+        Utils.toast('发现新版本!<br><span class="en">New version found!</span>', 'success');
+      } else {
+        Utils.toast('已是最新版本<br><span class="en">Already up to date</span>', 'success');
+      }
+    } catch (err) {
+      // If update check fails, force reload as fallback
+      window.location.reload();
     }
   }
 };
