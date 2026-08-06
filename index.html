@@ -424,6 +424,17 @@
           </select>
         </div>
       </div>
+      <div class="form-group">
+        <label>故障车编号 (Breakdown Vehicle No.)</label>
+        <input type="text" id="bd-vehicle" placeholder="输入故障车编号">
+      </div>
+      <div class="form-group">
+        <label>故障车照片 (Breakdown Vehicle Photo)</label>
+        <div class="photo-area">
+          <img id="bd-photo-preview" class="photo-preview hidden" alt="故障车照片">
+          <button class="btn btn-secondary btn-full" id="bd-take-photo">拍照<br><span class="en">(Camera)</span></button>
+        </div>
+      </div>
       <div class="form-row">
         <div class="form-group">
           <label>转运日期 (Transfer Date)</label>
@@ -436,17 +447,6 @@
             <option value="Day">白班 (Day)</option>
             <option value="Night">夜班 (Night)</option>
           </select>
-        </div>
-      </div>
-      <div class="form-group">
-        <label>故障车编号 (Breakdown Vehicle No.)</label>
-        <input type="text" id="bd-vehicle" placeholder="输入故障车编号">
-      </div>
-      <div class="form-group">
-        <label>故障车照片 (Breakdown Vehicle Photo)</label>
-        <div class="photo-area">
-          <img id="bd-photo-preview" class="photo-preview hidden" alt="故障车照片">
-          <button class="btn btn-secondary btn-full" id="bd-take-photo">拍照<br><span class="en">(Camera)</span></button>
         </div>
       </div>
       <div class="form-group">
@@ -531,10 +531,8 @@
         </select>
       </div>
       <div class="form-group">
-        <label>班次_日期 (Shift_Date)</label>
-        <div class="chip-group" id="bd-export-dates">
-          <div class="chip active" data-value="all">全部<br><span class="en">(All)</span></div>
-        </div>
+      <label>班次_日期 (Shift_Date)</label>
+      <div id="bd-export-dates"></div>
       </div>
       <div class="form-group">
         <label>班次 (Shift)</label>
@@ -620,9 +618,7 @@
     </div>
     <div class="form-group">
       <label>班次_日期 (Shift_Date)</label>
-      <div class="chip-group" id="export-dates">
-        <div class="chip active" data-value="all">全部<br><span class="en">(All)</span></div>
-      </div>
+      <div id="export-dates"></div>
     </div>
     <div class="form-group">
       <label>班次 (Shift)</label>
@@ -656,9 +652,7 @@
     </div>
     <div class="form-group">
       <label>班次_日期 (Shift_Date)</label>
-      <div class="chip-group" id="main-dv-dates">
-        <div class="chip active" data-value="all">全部<br><span class="en">(All)</span></div>
-      </div>
+      <div id="main-dv-dates"></div>
     </div>
     <button class="btn btn-primary btn-full" id="main-dv-query" style="margin-bottom:12px;">查询<br><span class="en">(Query)</span></button>
     <div id="main-dv-content" class="dataview-content"></div>
@@ -684,9 +678,7 @@
     </div>
     <div class="form-group">
       <label>班次_日期 (Shift_Date)</label>
-      <div class="chip-group" id="main-exp-dates">
-        <div class="chip active" data-value="all">全部<br><span class="en">(All)</span></div>
-      </div>
+      <div id="main-exp-dates"></div>
     </div>
     <div class="form-group">
       <label>班次 (Shift)</label>
@@ -737,6 +729,7 @@
 <script src="js/scanner.js"></script>
 <script src="js/camera.js"></script>
 <script src="js/exporter.js"></script>
+<script src="js/calendar.js"></script>
 <script src="js/app.js"></script>
 </body>
 </html>
