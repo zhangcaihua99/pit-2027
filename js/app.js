@@ -1708,26 +1708,46 @@ const App = {
 
   // Manual update check - triggered by user clicking "检查更新" button
   async checkForUpdates() {
-    if (!('serviceWorker' in navigator)) {
-      Utils.toast('不支持离线功能<br><span class="en">Offline not supported</span>', 'error');
-      return;
-    }
+    Utils.toast('正在检查更新...<br><span class="en">Checking for updates...</span>', 'info');
     try {
-      const reg = await navigator.serviceWorker.getRegistration();
-      if (!reg) {
+      // 1. Check version.json for a version mismatch (bypasses HTTP cache)
+      const resp = await fetch('version.json?v=' + Date.now(), { cache: 'no-cache' });
+      const data = resp.ok ? await resp.json() : null;
+      const stored = localStorage.getItem('opms_app_version');
+
+      if (data && data.version && stored !== data.version) {
+        // New version detected — force clean update
+        Utils.toast('发现新版本! 正在更新...<br><span class="en">New version! Updating...</span>', 'success');
+        localStorage.setItem('opms_app_version', data.version);
+        if ('serviceWorker' in navigator) {
+          const regs = await navigator.serviceWorker.getRegistrations();
+          await Promise.all(regs.map(r => r.unregister()));
+          if ('caches' in window) {
+            const keys = await caches.keys();
+            await Promise.all(keys.map(k => caches.delete(k)));
+          }
+        }
         window.location.reload();
         return;
       }
-      await reg.update();
-      if (reg.waiting) {
-        App._waitingSW = reg.waiting;
-        document.getElementById('update-banner').classList.remove('hidden');
-        Utils.toast('发现新版本!<br><span class="en">New version found!</span>', 'success');
-      } else {
-        Utils.toast('已是最新版本<br><span class="en">Already up to date</span>', 'success');
+
+      // 2. Also check if SW has a waiting worker
+      if ('serviceWorker' in navigator) {
+        const reg = await navigator.serviceWorker.getRegistration();
+        if (reg) {
+          await reg.update();
+          if (reg.waiting) {
+            App._waitingSW = reg.waiting;
+            document.getElementById('update-banner').classList.remove('hidden');
+            Utils.toast('发现新版本!<br><span class="en">New version found!</span>', 'success');
+            return;
+          }
+        }
       }
+
+      Utils.toast('已是最新版本<br><span class="en">Already up to date</span>', 'success');
     } catch (err) {
-      // If update check fails, force reload as fallback
+      // If update check fails (e.g., offline), force reload as fallback
       window.location.reload();
     }
   }
