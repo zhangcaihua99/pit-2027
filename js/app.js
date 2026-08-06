@@ -539,10 +539,10 @@ const App = {
     return [
       { key: 'breakdownDate', label: 'Shift_Date' },
       { key: 'breakdownShift', label: 'Shift' },
-      { key: 'transferDate', label: 'Transfer Date' },
-      { key: 'transferShift', label: 'Transfer Shift' },
       { key: 'breakdownVehicleNo', label: 'Breakdown Vehicle No.' },
       { key: 'breakdownPhoto', label: 'Breakdown Photo' },
+      { key: 'transferDate', label: 'Transfer Date' },
+      { key: 'transferShift', label: 'Transfer Shift' },
       { key: 'qrCode', label: 'Tag (QR)' },
       { key: 'newVehicleNo', label: 'New Vehicle No.' },
       { key: 'newVehiclePhoto', label: 'New Vehicle Photo' },
@@ -563,9 +563,9 @@ const App = {
 
     const fields = [
       [breakdownDate, '故障日期', 'Breakdown Date'], [breakdownShift, '故障班次', 'Breakdown Shift'],
-      [transferDate, '转运日期', 'Transfer Date'], [transferShift, '转运班次', 'Transfer Shift'],
       [breakdownVehicleNo, '故障车编号', 'Breakdown Vehicle No.'],
       [breakdownPhoto, '故障车照片', 'Breakdown Vehicle Photo'],
+      [transferDate, '转运日期', 'Transfer Date'], [transferShift, '转运班次', 'Transfer Shift'],
       [qrCode, '矿牌', 'Tag (QR)'],
       [newVehicleNo, '新车编号', 'New Vehicle No.'], [newVehiclePhoto, '新车照片', 'New Vehicle Photo']
     ];
@@ -672,43 +672,11 @@ const App = {
     const pkRecords = await DB.getAll(DB.STORES.parking);
     bdRecords.forEach(r => { if (r.breakdownDate) dateSet.add(r.breakdownDate); });
     pkRecords.forEach(r => { if (r.breakdownDate) dateSet.add(r.breakdownDate); });
-    const dates = Array.from(dateSet).sort().reverse();
-    const container = document.getElementById('bd-export-dates');
-    container.querySelectorAll('.chip:not([data-value="all"])').forEach(c => c.remove());
-    for (const date of dates) {
-      const chip = document.createElement('div');
-      chip.className = 'chip';
-      chip.dataset.value = date;
-      const parts = date.split('-');
-      chip.textContent = parts[1] + '-' + parts[2];
-      chip.addEventListener('click', () => {
-        chip.classList.toggle('active');
-        if (chip.classList.contains('active')) {
-          container.querySelector('.chip[data-value="all"]').classList.remove('active');
-        }
-        const anyActive = container.querySelectorAll('.chip.active:not([data-value="all"])').length > 0;
-        if (!anyActive) {
-          container.querySelector('.chip[data-value="all"]').classList.add('active');
-        }
-      });
-      container.appendChild(chip);
-    }
-    const allChip = container.querySelector('.chip[data-value="all"]');
-    allChip.onclick = () => {
-      if (allChip.classList.contains('active')) {
-        allChip.classList.remove('active');
-      } else {
-        allChip.classList.add('active');
-        container.querySelectorAll('.chip:not([data-value="all"])').forEach(c => c.classList.remove('active'));
-      }
-    };
+    CalendarPicker.init('bd-export-dates', Array.from(dateSet));
   },
 
   getBdExportSelectedDates() {
-    const container = document.getElementById('bd-export-dates');
-    const allChip = container.querySelector('.chip[data-value="all"]');
-    if (allChip && allChip.classList.contains('active')) return null;
-    return Array.from(container.querySelectorAll('.chip.active:not([data-value="all"])')).map(c => c.dataset.value);
+    return CalendarPicker.getSelectedDates('bd-export-dates');
   },
 
   async exportBreakdownData(type) {
@@ -736,10 +704,10 @@ const App = {
         { key: 'recordType', label: 'Type' },
         { key: 'breakdownDate', label: 'Shift_Date' },
         { key: 'breakdownShift', label: 'Shift' },
-        { key: 'transferDate', label: 'Transfer Date' },
-        { key: 'transferShift', label: 'Transfer Shift' },
         { key: 'breakdownVehicleNo', label: 'Vehicle No.' },
         { key: 'breakdownPhoto', label: 'Vehicle Photo' },
+        { key: 'transferDate', label: 'Transfer Date' },
+        { key: 'transferShift', label: 'Transfer Shift' },
         { key: 'qrCode', label: 'Tag (QR)' },
         { key: 'newVehicleNo', label: 'New Vehicle No.' },
         { key: 'newVehiclePhoto', label: 'New Vehicle Photo' },
@@ -1012,44 +980,11 @@ const App = {
       const d = r.date || r.breakdownDate;
       if (d) dateSet.add(d);
     });
-    const dates = Array.from(dateSet).sort().reverse();
-    const container = document.getElementById('export-dates');
-    container.querySelectorAll('.chip:not([data-value="all"])').forEach(c => c.remove());
-    for (const date of dates) {
-      const chip = document.createElement('div');
-      chip.className = 'chip';
-      chip.dataset.value = date;
-      const parts = date.split('-');
-      chip.textContent = parts[1] + '-' + parts[2];
-      chip.addEventListener('click', () => {
-        chip.classList.toggle('active');
-        if (chip.classList.contains('active')) {
-          container.querySelector('.chip[data-value="all"]').classList.remove('active');
-        }
-        const anyActive = container.querySelectorAll('.chip.active:not([data-value="all"])').length > 0;
-        if (!anyActive) {
-          container.querySelector('.chip[data-value="all"]').classList.add('active');
-        }
-      });
-      container.appendChild(chip);
-    }
-    // Bind "all" chip toggle
-    const allChip = container.querySelector('.chip[data-value="all"]');
-    allChip.onclick = () => {
-      if (allChip.classList.contains('active')) {
-        allChip.classList.remove('active');
-      } else {
-        allChip.classList.add('active');
-        container.querySelectorAll('.chip:not([data-value="all"])').forEach(c => c.classList.remove('active'));
-      }
-    };
+    CalendarPicker.init('export-dates', Array.from(dateSet));
   },
 
   getSubExportSelectedDates() {
-    const container = document.getElementById('export-dates');
-    const allChip = container.querySelector('.chip[data-value="all"]');
-    if (allChip && allChip.classList.contains('active')) return null;
-    return Array.from(container.querySelectorAll('.chip.active:not([data-value="all"])')).map(c => c.dataset.value);
+    return CalendarPicker.getSelectedDates('export-dates');
   },
 
   async doExport(type) {
@@ -1391,33 +1326,6 @@ const App = {
         chip.classList.toggle('active');
       });
     });
-    // Chip toggle for data view dates
-    document.querySelectorAll('#main-dv-dates .chip').forEach(chip => {
-      chip.addEventListener('click', () => {
-        const isAll = chip.dataset.value === 'all';
-        if (isAll) {
-          // Toggle "all" - when active, deactivate all others; when inactive, activate all
-          if (chip.classList.contains('active')) {
-            chip.classList.remove('active');
-          } else {
-            chip.classList.add('active');
-            document.querySelectorAll('#main-dv-dates .chip:not([data-value="all"])').forEach(c => c.classList.remove('active'));
-          }
-        } else {
-          // Toggle individual date
-          chip.classList.toggle('active');
-          // If any individual date is active, deactivate "all"
-          if (chip.classList.contains('active')) {
-            document.querySelector('#main-dv-dates .chip[data-value="all"]').classList.remove('active');
-          }
-          // If no individual date is active, reactivate "all"
-          const anyActive = document.querySelectorAll('#main-dv-dates .chip.active:not([data-value="all"])').length > 0;
-          if (!anyActive) {
-            document.querySelector('#main-dv-dates .chip[data-value="all"]').classList.add('active');
-          }
-        }
-      });
-    });
 
     // ====== Export ======
     document.getElementById('btn-main-export').addEventListener('click', () => {
@@ -1440,29 +1348,6 @@ const App = {
         chip.classList.toggle('active');
       });
     });
-    // Chip toggle for export dates
-    document.querySelectorAll('#main-exp-dates .chip').forEach(chip => {
-      chip.addEventListener('click', () => {
-        const isAll = chip.dataset.value === 'all';
-        if (isAll) {
-          if (chip.classList.contains('active')) {
-            chip.classList.remove('active');
-          } else {
-            chip.classList.add('active');
-            document.querySelectorAll('#main-exp-dates .chip:not([data-value="all"])').forEach(c => c.classList.remove('active'));
-          }
-        } else {
-          chip.classList.toggle('active');
-          if (chip.classList.contains('active')) {
-            document.querySelector('#main-exp-dates .chip[data-value="all"]').classList.remove('active');
-          }
-          const anyActive = document.querySelectorAll('#main-exp-dates .chip.active:not([data-value="all"])').length > 0;
-          if (!anyActive) {
-            document.querySelector('#main-exp-dates .chip[data-value="all"]').classList.add('active');
-          }
-        }
-      });
-    });
 
     // ====== Delete ======
     document.getElementById('btn-main-delete').addEventListener('click', () => {
@@ -1480,7 +1365,7 @@ const App = {
       }
       // Open main data view with only the selected category active
       this.setMainDvSites([category]);
-      this.setMainDvDates(['all']);
+      this.setMainDvDates(null);
       this.showMainDataView();
     });
     document.getElementById('main-del-category-all').addEventListener('click', () => {
@@ -1532,9 +1417,7 @@ const App = {
   },
 
   getSelectedDates(containerId) {
-    const allChip = document.querySelector('#' + containerId + ' .chip[data-value="all"]');
-    if (allChip && allChip.classList.contains('active')) return null;
-    return Array.from(document.querySelectorAll('#' + containerId + ' .chip.active:not([data-value="all"])')).map(c => c.dataset.value);
+    return CalendarPicker.getSelectedDates(containerId);
   },
 
   async loadAvailableDates(containerId) {
@@ -1547,27 +1430,7 @@ const App = {
         if (d) dateSet.add(d);
       });
     }
-    const dates = Array.from(dateSet).sort().reverse();
-    const container = document.getElementById(containerId);
-    container.querySelectorAll('.chip:not([data-value="all"])').forEach(c => c.remove());
-    for (const date of dates) {
-      const chip = document.createElement('div');
-      chip.className = 'chip';
-      chip.dataset.value = date;
-      const parts = date.split('-');
-      chip.textContent = parts[1] + '-' + parts[2];
-      chip.addEventListener('click', () => {
-        chip.classList.toggle('active');
-        if (chip.classList.contains('active')) {
-          container.querySelector('.chip[data-value="all"]').classList.remove('active');
-        }
-        const anyActive = container.querySelectorAll('.chip.active:not([data-value="all"])').length > 0;
-        if (!anyActive) {
-          container.querySelector('.chip[data-value="all"]').classList.add('active');
-        }
-      });
-      container.appendChild(chip);
-    }
+    CalendarPicker.init(containerId, Array.from(dateSet));
   },
 
   setMainDvSites(sites) {
@@ -1577,16 +1440,7 @@ const App = {
   },
 
   setMainDvDates(dates) {
-    const container = document.getElementById('main-dv-dates');
-    if (dates.includes('all')) {
-      container.querySelector('.chip[data-value="all"]').classList.add('active');
-      container.querySelectorAll('.chip:not([data-value="all"])').forEach(c => c.classList.remove('active'));
-    } else {
-      container.querySelector('.chip[data-value="all"]').classList.remove('active');
-      container.querySelectorAll('.chip:not([data-value="all"])').forEach(c => {
-        c.classList.toggle('active', dates.includes(c.dataset.value));
-      });
-    }
+    CalendarPicker.setSelectedDates('main-dv-dates', dates);
   },
 
   async saveMainFilterSelections(prefix) {
@@ -1607,16 +1461,7 @@ const App = {
       });
     }
     if (saved && saved.dates !== undefined) {
-      const container = document.getElementById(datesContainer);
-      if (saved.dates === null) {
-        container.querySelector('.chip[data-value="all"]').classList.add('active');
-        container.querySelectorAll('.chip:not([data-value="all"])').forEach(c => c.classList.remove('active'));
-      } else if (Array.isArray(saved.dates) && saved.dates.length > 0) {
-        container.querySelector('.chip[data-value="all"]').classList.remove('active');
-        container.querySelectorAll('.chip:not([data-value="all"])').forEach(c => {
-          c.classList.toggle('active', saved.dates.includes(c.dataset.value));
-        });
-      }
+      CalendarPicker.setSelectedDates(datesContainer, saved.dates);
     }
   },
 
