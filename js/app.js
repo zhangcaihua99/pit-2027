@@ -1306,27 +1306,86 @@ const App = {
       document.getElementById('main-dataview-modal').classList.add('hidden');
     });
     document.getElementById('main-dv-query').addEventListener('click', () => {
+      this.saveMainFilterSelections('dv');
       this.loadMainDataView();
     });
-    document.getElementById('main-dv-category').addEventListener('change', () => {
-      this.loadMainDataView();
+    // Chip toggle for data view sites
+    document.querySelectorAll('#main-dv-sites .chip').forEach(chip => {
+      chip.addEventListener('click', () => {
+        chip.classList.toggle('active');
+      });
     });
-    document.getElementById('main-dv-date').addEventListener('change', () => {
-      this.loadMainDataView();
+    // Chip toggle for data view dates
+    document.querySelectorAll('#main-dv-dates .chip').forEach(chip => {
+      chip.addEventListener('click', () => {
+        const isAll = chip.dataset.value === 'all';
+        if (isAll) {
+          // Toggle "all" - when active, deactivate all others; when inactive, activate all
+          if (chip.classList.contains('active')) {
+            chip.classList.remove('active');
+          } else {
+            chip.classList.add('active');
+            document.querySelectorAll('#main-dv-dates .chip:not([data-value="all"])').forEach(c => c.classList.remove('active'));
+          }
+        } else {
+          // Toggle individual date
+          chip.classList.toggle('active');
+          // If any individual date is active, deactivate "all"
+          if (chip.classList.contains('active')) {
+            document.querySelector('#main-dv-dates .chip[data-value="all"]').classList.remove('active');
+          }
+          // If no individual date is active, reactivate "all"
+          const anyActive = document.querySelectorAll('#main-dv-dates .chip.active:not([data-value="all"])').length > 0;
+          if (!anyActive) {
+            document.querySelector('#main-dv-dates .chip[data-value="all"]').classList.add('active');
+          }
+        }
+      });
     });
 
     // ====== Export ======
     document.getElementById('btn-main-export').addEventListener('click', () => {
-      document.getElementById('main-export-modal').classList.remove('hidden');
+      this.showMainExport();
     });
     document.getElementById('main-exp-close').addEventListener('click', () => {
       document.getElementById('main-export-modal').classList.add('hidden');
     });
     document.getElementById('main-exp-excel').addEventListener('click', () => {
+      this.saveMainFilterSelections('exp');
       this.doMainExport('excel');
     });
     document.getElementById('main-exp-png').addEventListener('click', () => {
+      this.saveMainFilterSelections('exp');
       this.doMainExport('png');
+    });
+    // Chip toggle for export sites
+    document.querySelectorAll('#main-exp-sites .chip').forEach(chip => {
+      chip.addEventListener('click', () => {
+        chip.classList.toggle('active');
+      });
+    });
+    // Chip toggle for export dates
+    document.querySelectorAll('#main-exp-dates .chip').forEach(chip => {
+      chip.addEventListener('click', () => {
+        const isAll = chip.dataset.value === 'all';
+        if (isAll) {
+          if (chip.classList.contains('active')) {
+            chip.classList.remove('active');
+          } else {
+            chip.classList.add('active');
+            document.querySelectorAll('#main-exp-dates .chip:not([data-value="all"])').forEach(c => c.classList.remove('active'));
+          }
+        } else {
+          chip.classList.toggle('active');
+          if (chip.classList.contains('active')) {
+            document.querySelector('#main-exp-dates .chip[data-value="all"]').classList.remove('active');
+          }
+          const anyActive = document.querySelectorAll('#main-exp-dates .chip.active:not([data-value="all"])').length > 0;
+          if (!anyActive) {
+            document.querySelector('#main-exp-dates .chip[data-value="all"]').classList.add('active');
+          }
+        }
+      });
     });
 
     // ====== Delete ======
@@ -1343,9 +1402,9 @@ const App = {
         Utils.toast('请选择具体类别<br><span class="en">Please select a specific category</span>', 'error');
         return;
       }
-      // Open main data view with delete buttons for the selected category
-      document.getElementById('main-dv-category').value = category;
-      document.getElementById('main-dv-date').value = '';
+      // Open main data view with only the selected category active
+      this.setMainDvSites([category]);
+      this.setMainDvDates(['all']);
       this.showMainDataView();
     });
     document.getElementById('main-del-category-all').addEventListener('click', () => {
@@ -1378,50 +1437,158 @@ const App = {
     });
   },
 
-  showMainDataView() {
+  async showMainDataView() {
     this.state.dataViewSource = 'main';
     document.getElementById('main-dataview-modal').classList.remove('hidden');
+    await this.loadAvailableDates('main-dv-dates');
+    await this.restoreMainFilterSelections('dv');
     this.loadMainDataView();
   },
 
-  async loadMainDataView() {
-    const category = document.getElementById('main-dv-category').value;
-    const filterDate = document.getElementById('main-dv-date').value;
-    const content = document.getElementById('main-dv-content');
-    App._tempImages = [];
+  async showMainExport() {
+    document.getElementById('main-export-modal').classList.remove('hidden');
+    await this.loadAvailableDates('main-exp-dates');
+    await this.restoreMainFilterSelections('exp');
+  },
 
-    if (category === 'all') {
-      // Show latest 10 from each category
-      const cats = [
-        { key: 'openpit', label: '采坑 (Open-pit)' },
-        { key: 'stockpile', label: '堆场 (Stockpile)' },
-        { key: 'transfer', label: '二次转运 (Secondary Transfer)' },
-        { key: 'breakdown', label: '故障车辆 (Breakdown)' },
-        { key: 'parking', label: '押矿车辆 (Parking)' }
-      ];
-      let html = '';
-      for (const cat of cats) {
-        let records = await DB.getAll(DB.STORES[cat.key]);
-        if (filterDate) records = records.filter(r => (r.date || r.breakdownDate) === filterDate);
-        records.sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
-        const latest = records.slice(0, 10);
-        html += `<h4 class="section-title">${cat.label} <span class="count-badge">${records.length}</span></h4>`;
-        html += this.renderDataTable(latest, this.getHeadersByKey(cat.key), cat.key);
-        html += '<hr class="section-divider">';
-      }
-      content.innerHTML = html || '<p class="empty-msg">暂无数据 (No data)</p>';
-    } else {
-      let records = await DB.getAll(DB.STORES[category]);
-      if (filterDate) records = records.filter(r => (r.date || r.breakdownDate) === filterDate);
-      records.sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
-      content.innerHTML = this.renderDataTable(records, this.getHeadersByKey(category), category);
+  getSelectedSites(containerId) {
+    return Array.from(document.querySelectorAll('#' + containerId + ' .chip.active')).map(c => c.dataset.value);
+  },
+
+  getSelectedDates(containerId) {
+    const allChip = document.querySelector('#' + containerId + ' .chip[data-value="all"]');
+    if (allChip && allChip.classList.contains('active')) return null;
+    return Array.from(document.querySelectorAll('#' + containerId + ' .chip.active:not([data-value="all"])')).map(c => c.dataset.value);
+  },
+
+  async loadAvailableDates(containerId) {
+    const dateSet = new Set();
+    const stores = [DB.STORES.openpit, DB.STORES.stockpile, DB.STORES.transfer, DB.STORES.breakdown, DB.STORES.parking];
+    for (const store of stores) {
+      const records = await DB.getAll(store);
+      records.forEach(r => {
+        const d = r.date || r.breakdownDate;
+        if (d) dateSet.add(d);
+      });
+    }
+    const dates = Array.from(dateSet).sort().reverse();
+    const container = document.getElementById(containerId);
+    container.querySelectorAll('.chip:not([data-value="all"])').forEach(c => c.remove());
+    for (const date of dates) {
+      const chip = document.createElement('div');
+      chip.className = 'chip';
+      chip.dataset.value = date;
+      const parts = date.split('-');
+      chip.textContent = parts[1] + '-' + parts[2];
+      chip.addEventListener('click', () => {
+        chip.classList.toggle('active');
+        if (chip.classList.contains('active')) {
+          container.querySelector('.chip[data-value="all"]').classList.remove('active');
+        }
+        const anyActive = container.querySelectorAll('.chip.active:not([data-value="all"])').length > 0;
+        if (!anyActive) {
+          container.querySelector('.chip[data-value="all"]').classList.add('active');
+        }
+      });
+      container.appendChild(chip);
     }
   },
 
+  setMainDvSites(sites) {
+    document.querySelectorAll('#main-dv-sites .chip').forEach(c => {
+      c.classList.toggle('active', sites.includes(c.dataset.value));
+    });
+  },
+
+  setMainDvDates(dates) {
+    const container = document.getElementById('main-dv-dates');
+    if (dates.includes('all')) {
+      container.querySelector('.chip[data-value="all"]').classList.add('active');
+      container.querySelectorAll('.chip:not([data-value="all"])').forEach(c => c.classList.remove('active'));
+    } else {
+      container.querySelector('.chip[data-value="all"]').classList.remove('active');
+      container.querySelectorAll('.chip:not([data-value="all"])').forEach(c => {
+        c.classList.toggle('active', dates.includes(c.dataset.value));
+      });
+    }
+  },
+
+  async saveMainFilterSelections(prefix) {
+    const sitesContainer = prefix === 'dv' ? 'main-dv-sites' : 'main-exp-sites';
+    const datesContainer = prefix === 'dv' ? 'main-dv-dates' : 'main-exp-dates';
+    const sites = this.getSelectedSites(sitesContainer);
+    const dates = this.getSelectedDates(datesContainer);
+    await DB.setSetting({ id: 'defaults_mainFilter_' + prefix, sites, dates });
+  },
+
+  async restoreMainFilterSelections(prefix) {
+    const sitesContainer = prefix === 'dv' ? 'main-dv-sites' : 'main-exp-sites';
+    const datesContainer = prefix === 'dv' ? 'main-dv-dates' : 'main-exp-dates';
+    const saved = await DB.getSetting('defaults_mainFilter_' + prefix);
+    if (saved && saved.sites) {
+      document.querySelectorAll('#' + sitesContainer + ' .chip').forEach(c => {
+        c.classList.toggle('active', saved.sites.includes(c.dataset.value));
+      });
+    }
+    if (saved && saved.dates !== undefined) {
+      const container = document.getElementById(datesContainer);
+      if (saved.dates === null) {
+        container.querySelector('.chip[data-value="all"]').classList.add('active');
+        container.querySelectorAll('.chip:not([data-value="all"])').forEach(c => c.classList.remove('active'));
+      } else if (Array.isArray(saved.dates) && saved.dates.length > 0) {
+        container.querySelector('.chip[data-value="all"]').classList.remove('active');
+        container.querySelectorAll('.chip:not([data-value="all"])').forEach(c => {
+          c.classList.toggle('active', saved.dates.includes(c.dataset.value));
+        });
+      }
+    }
+  },
+
+  async loadMainDataView() {
+    const sites = this.getSelectedSites('main-dv-sites');
+    const filterDates = this.getSelectedDates('main-dv-dates');
+    const content = document.getElementById('main-dv-content');
+    App._tempImages = [];
+
+    if (sites.length === 0) {
+      content.innerHTML = '<p class="empty-msg">请选择工作区域<br><span class="en">Please select working site</span></p>';
+      return;
+    }
+
+    const catLabels = {
+      openpit: '采坑 (Open-pit)', stockpile: '堆场 (Stockpile)', transfer: '二次转运 (Secondary Transfer)',
+      breakdown: '故障车辆 (Breakdown)', parking: '押矿车辆 (Parking)'
+    };
+
+    let html = '';
+    for (const key of sites) {
+      let records = await DB.getAll(DB.STORES[key]);
+      if (filterDates) records = records.filter(r => {
+        const d = r.date || r.breakdownDate;
+        return d && filterDates.includes(d);
+      });
+      records.sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
+      const latest = sites.length > 1 ? records.slice(0, 10) : records;
+      html += '<h4 class="section-title">' + catLabels[key] + ' <span class="count-badge">' + records.length + '</span></h4>';
+      if (latest.length > 0) {
+        html += this.renderDataTable(latest, this.getHeadersByKey(key), key);
+      } else {
+        html += '<p class="empty-msg">暂无数据 (No data)</p>';
+      }
+      html += '<hr class="section-divider">';
+    }
+    content.innerHTML = html || '<p class="empty-msg">暂无数据 (No data)</p>';
+  },
+
   async doMainExport(type) {
-    const category = document.getElementById('main-exp-category').value;
-    const filterDate = document.getElementById('main-exp-date').value;
+    const sites = this.getSelectedSites('main-exp-sites');
+    const filterDates = this.getSelectedDates('main-exp-dates');
     const filterShift = document.getElementById('main-exp-shift').value;
+
+    if (sites.length === 0) {
+      Utils.toast('请选择工作区域<br><span class="en">Please select working site</span>', 'error');
+      return;
+    }
 
     const labelMap = {
       openpit: 'Open-pit', stockpile: 'Stockpile', transfer: 'Transfer', breakdown: 'Breakdown', parking: 'Parking'
@@ -1432,27 +1599,35 @@ const App = {
       breakdown: '故障车辆数据 (Breakdown Data)', parking: '押矿车辆数据 (Parking Data)'
     };
 
-    // All categories → multi-sheet Excel
-    if (category === 'all') {
-      const cats = ['openpit', 'stockpile', 'transfer', 'breakdown', 'parking'];
-      const sheets = [];
-      let totalRecords = 0;
-      for (const key of cats) {
-        let records = await DB.getAll(DB.STORES[key]);
-        if (filterDate) records = records.filter(r => (r.date || r.breakdownDate) === filterDate);
-        if (filterShift) records = records.filter(r => (r.shift || r.breakdownShift) === filterShift);
-        records.sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
-        totalRecords += records.length;
-        sheets.push({ name: labelMap[key], records, headers: this.getHeadersByKey(key) });
-      }
-      if (totalRecords === 0) {
-        Utils.toast('没有数据可导出<br><span class="en">No data to export</span>', 'error');
-        return;
-      }
-      if (type === 'excel') {
-        Exporter.toExcelMultiSheet(sheets, 'All_' + Utils.getTimestampStr());
+    const sheets = [];
+    let totalRecords = 0;
+    for (const key of sites) {
+      let records = await DB.getAll(DB.STORES[key]);
+      if (filterDates) records = records.filter(r => {
+        const d = r.date || r.breakdownDate;
+        return d && filterDates.includes(d);
+      });
+      if (filterShift) records = records.filter(r => (r.shift || r.breakdownShift) === filterShift);
+      records.sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
+      totalRecords += records.length;
+      sheets.push({ key: key, name: labelMap[key], records: records, headers: this.getHeadersByKey(key) });
+    }
+
+    if (totalRecords === 0) {
+      Utils.toast('没有数据可导出<br><span class="en">No data to export</span>', 'error');
+      return;
+    }
+
+    if (type === 'excel') {
+      if (sheets.length > 1) {
+        Exporter.toExcelMultiSheet(sheets, 'Export_' + Utils.getTimestampStr());
       } else {
-        // PNG: merge all into one table
+        Exporter.toExcel(sheets[0].records, sheets[0].headers, labelMap[sheets[0].key] + '_' + Utils.getTimestampStr());
+      }
+    } else {
+      if (sheets.length === 1) {
+        Exporter.toPNG(sheets[0].records, sheets[0].headers, labelMap[sheets[0].key] + '_' + Utils.getTimestampStr(), titleMap[sheets[0].key]);
+      } else {
         const allRecords = [];
         const allHeaders = [
           { key: 'category', label: 'Category' },
@@ -1476,30 +1651,8 @@ const App = {
         });
         Exporter.toPNG(allRecords, allHeaders, 'All_' + Utils.getTimestampStr(), '全部数据 (All Data)');
       }
-      Utils.toast('导出成功! 共' + totalRecords + '条<br><span class="en">Exported! ' + totalRecords + ' records</span>', 'success');
-      return;
     }
-
-    // Single category export
-    let records = await DB.getAll(DB.STORES[category]);
-    if (filterDate) records = records.filter(r => (r.date || r.breakdownDate) === filterDate);
-    if (filterShift) records = records.filter(r => (r.shift || r.breakdownShift) === filterShift);
-    records.sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
-
-    if (records.length === 0) {
-      Utils.toast('没有数据可导出<br><span class="en">No data to export</span>', 'error');
-      return;
-    }
-
-    const headers = this.getHeadersByKey(category);
-    const filename = labelMap[category] + '_' + Utils.getTimestampStr();
-
-    if (type === 'excel') {
-      Exporter.toExcel(records, headers, filename);
-    } else {
-      Exporter.toPNG(records, headers, filename, titleMap[category]);
-    }
-    Utils.toast('导出成功! 共' + records.length + '条<br><span class="en">Exported! ' + records.length + ' records</span>', 'success');
+    Utils.toast('导出成功! 共' + totalRecords + '条<br><span class="en">Exported! ' + totalRecords + ' records</span>', 'success');
   },
 
   // ==================== Update Check ====================
