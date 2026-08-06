@@ -604,21 +604,20 @@
       <h2>数据查看<br><span class="en">(Data View)</span></h2>
       <button class="btn-icon btn-close" id="main-dv-close">&#10005;</button>
     </div>
-    <div class="form-row">
-      <div class="form-group">
-        <label>数据类别 (Category)</label>
-        <select id="main-dv-category">
-          <option value="openpit">采坑 (Open-pit)</option>
-          <option value="stockpile">堆场 (Stockpile)</option>
-          <option value="transfer">二次转运 (Secondary Transfer)</option>
-          <option value="breakdown">故障车辆 (Breakdown)</option>
-          <option value="parking">押矿车辆 (Parking)</option>
-          <option value="all">全部最新 (All Latest)</option>
-        </select>
+    <div class="form-group">
+      <label>工作区域 (Working Site)</label>
+      <div class="chip-group" id="main-dv-sites">
+        <div class="chip active" data-value="openpit">采坑<br><span class="en">(Open-pit)</span></div>
+        <div class="chip active" data-value="stockpile">堆场<br><span class="en">(Stockpile)</span></div>
+        <div class="chip active" data-value="transfer">二次转运<br><span class="en">(Transfer)</span></div>
+        <div class="chip active" data-value="breakdown">故障车辆<br><span class="en">(Breakdown)</span></div>
+        <div class="chip active" data-value="parking">押矿车辆<br><span class="en">(Parking)</span></div>
       </div>
-      <div class="form-group">
-        <label>日期筛选 (Date Filter)</label>
-        <input type="date" id="main-dv-date">
+    </div>
+    <div class="form-group">
+      <label>班次_日期 (Shift_Date)</label>
+      <div class="chip-group" id="main-dv-dates">
+        <div class="chip active" data-value="all">全部<br><span class="en">(All)</span></div>
       </div>
     </div>
     <button class="btn btn-primary btn-full" id="main-dv-query" style="margin-bottom:12px;">查询<br><span class="en">(Query)</span></button>
@@ -634,29 +633,28 @@
       <button class="btn-icon btn-close" id="main-exp-close">&#10005;</button>
     </div>
     <div class="form-group">
-      <label>数据类别 (Category)</label>
-      <select id="main-exp-category">
-        <option value="openpit">采坑 (Open-pit)</option>
-        <option value="stockpile">堆场 (Stockpile)</option>
-        <option value="transfer">二次转运 (Secondary Transfer)</option>
-        <option value="breakdown">故障车辆 (Breakdown)</option>
-        <option value="parking">押矿车辆 (Parking)</option>
-        <option value="all">全部 - 多工作表 (All - Multi-sheet)</option>
-      </select>
+      <label>工作区域 (Working Site)</label>
+      <div class="chip-group" id="main-exp-sites">
+        <div class="chip active" data-value="openpit">采坑<br><span class="en">(Open-pit)</span></div>
+        <div class="chip active" data-value="stockpile">堆场<br><span class="en">(Stockpile)</span></div>
+        <div class="chip active" data-value="transfer">二次转运<br><span class="en">(Transfer)</span></div>
+        <div class="chip active" data-value="breakdown">故障车辆<br><span class="en">(Breakdown)</span></div>
+        <div class="chip active" data-value="parking">押矿车辆<br><span class="en">(Parking)</span></div>
+      </div>
     </div>
-    <div class="form-row">
-      <div class="form-group">
-        <label>日期筛选 (Date Filter)</label>
-        <input type="date" id="main-exp-date">
+    <div class="form-group">
+      <label>班次_日期 (Shift_Date)</label>
+      <div class="chip-group" id="main-exp-dates">
+        <div class="chip active" data-value="all">全部<br><span class="en">(All)</span></div>
       </div>
-      <div class="form-group">
-        <label>班次筛选 (Shift Filter)</label>
-        <select id="main-exp-shift">
-          <option value="">全部 (All)</option>
-          <option value="Day Shift">白班 (Day Shift)</option>
-          <option value="Night Shift">夜班 (Night Shift)</option>
-        </select>
-      </div>
+    </div>
+    <div class="form-group">
+      <label>班次 (Shift)</label>
+      <select id="main-exp-shift">
+        <option value="">全部 (All)</option>
+        <option value="Day Shift">白班 (Day Shift)</option>
+        <option value="Night Shift">夜班 (Night Shift)</option>
+      </select>
     </div>
     <button class="btn btn-success btn-full" id="main-exp-excel">导出 Excel</button>
     <button class="btn btn-info btn-full" id="main-exp-png">导出 PNG 图片<br><span class="en">(Export PNG)</span></button>
@@ -671,7 +669,7 @@
       <button class="btn-icon btn-close" id="main-del-close">&#10005;</button>
     </div>
     <div class="form-group">
-      <label>数据类别 (Category)</label>
+      <label>工作区域 (Working Site)</label>
       <select id="main-del-category">
         <option value="openpit">采坑 (Open-pit)</option>
         <option value="stockpile">堆场 (Stockpile)</option>
