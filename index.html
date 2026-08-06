@@ -12,6 +12,53 @@
   <link rel="apple-touch-icon" href="icons/icon-192.png">
   <link rel="icon" type="image/png" href="icons/icon-192.png">
   <link rel="stylesheet" href="css/style.css">
+  <script>
+  /**
+   * Inline version-check script — runs BEFORE any other JS loads.
+   * Since navigation is network-first in the SW, this HTML (and thus
+   * this inline script) is always fetched fresh from the network.
+   *
+   * It fetches version.json with cache-busting, compares against
+   * the last known version in localStorage, and if they differ:
+   *   1. Unregisters all service workers
+   *   2. Clears all caches
+   *   3. Stores the new version
+   *   4. Force-reloads the page
+   *
+   * This bypasses the GitHub Pages HTTP cache on sw.js and the
+   * browser's 24h SW update check limit.
+   */
+  (function() {
+    var FORCE_UPDATE_KEY = 'opms_app_version';
+    try {
+      fetch('version.json?v=' + Date.now(), { cache: 'no-cache' })
+        .then(function(r) { return r.ok ? r.json() : null; })
+        .then(function(data) {
+          if (!data || !data.version) return;
+          var stored = localStorage.getItem(FORCE_UPDATE_KEY);
+          if (stored && stored === data.version) return; // same version, no action
+          // Version mismatch — force clean update
+          localStorage.setItem(FORCE_UPDATE_KEY, data.version);
+          if ('serviceWorker' in navigator) {
+            navigator.serviceWorker.getRegistrations().then(function(regs) {
+              var promises = regs.map(function(reg) { return reg.unregister(); });
+              return Promise.all(promises);
+            }).then(function() {
+              if ('caches' in window) {
+                return caches.keys().then(function(keys) {
+                  return Promise.all(keys.map(function(k) { return caches.delete(k); }));
+                });
+              }
+            }).then(function() {
+              window.location.reload();
+            });
+          } else {
+            window.location.reload();
+          }
+        }).catch(function() { /* offline or error — ignore, use cached */ });
+    } catch (e) { /* ignore */ }
+  })();
+  </script>
 </head>
 <body>
 
