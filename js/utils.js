@@ -3,7 +3,7 @@
  */
 const Utils = {
   /**
-   * Get current date string YYYY-MM-DD
+   * Get current date string YYYY-MM-DD (calendar date)
    */
   getTodayStr() {
     const d = new Date();
@@ -14,13 +14,42 @@ const Utils = {
   },
 
   /**
-   * Get current shift based on time
-   * 7:00-19:00 => Day Shift, 19:00-7:00 => Night Shift
+   * Get shift date string YYYY-MM-DD.
+   * Shift date: 07:00 ~ next day 07:00 = one complete date.
+   * If current time is before 07:00, shift date = yesterday.
+   * e.g. 2026-08-06 06:00 → shift date = 2026-08-05
+   *      2026-08-06 08:00 → shift date = 2026-08-06
+   */
+  getShiftDateStr() {
+    const d = new Date();
+    if (d.getHours() < 7) {
+      d.setDate(d.getDate() - 1);
+    }
+    const y = d.getFullYear();
+    const m = String(d.getMonth() + 1).padStart(2, '0');
+    const day = String(d.getDate()).padStart(2, '0');
+    return `${y}-${m}-${day}`;
+  },
+
+  /**
+   * Get current shift: "Day" (07:00-19:00) or "Night" (19:00-07:00)
    */
   getCurrentShift() {
     const h = new Date().getHours();
-    if (h >= 7 && h < 19) return 'Day Shift';
-    return 'Night Shift';
+    if (h >= 7 && h < 19) return 'Day';
+    return 'Night';
+  },
+
+  /**
+   * Normalize shift value for backward compatibility.
+   * "Day Shift" → "Day", "Night Shift" → "Night"
+   */
+  normalizeShift(shift) {
+    if (!shift) return '';
+    if (shift === 'Day' || shift === 'Night') return shift;
+    if (shift.includes('Day')) return 'Day';
+    if (shift.includes('Night')) return 'Night';
+    return shift;
   },
 
   /**
